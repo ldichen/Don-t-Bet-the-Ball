@@ -2,7 +2,15 @@
 
 足球竞彩赔率分析工具。输入比赛赔率，计算去水真实概率、查询历史加权胜率、运行多模型 ML 预测，用数据劝退冲动下注。
 
+**在线体验：** [lottery.dichen.cc](http://lottery.dichen.cc)
+
 [English](README.md)
+
+## 截图
+
+![赔率计算器](assets/screenshot-hero.png)
+
+![比赛浏览器](assets/screenshot-table.png)
 
 ## 功能
 
@@ -41,7 +49,7 @@ cd server
 uvicorn main:app --reload
 ```
 
-首次启动需 1-2 分钟训练模型。后端未运行时，前端 ML 模块会使用本地近似值作为 fallback。
+服务端加载 `model/artifacts/` 中的预训练模型（本地训练：`python model/train_models.py`）。后端未运行时，前端 ML 模块会使用本地近似值作为 fallback。
 
 ## 数据库
 
@@ -96,6 +104,12 @@ npm run build
 ├── model/          # 模型训练脚本
 └── design/         # UI/UX 设计稿（只读参考）
 ```
+
+## 打赏
+
+如果这个项目对你有帮助，欢迎请我喝杯咖啡 :)
+
+<a href="assets/wechat-pay.jpg"><img src="assets/wechat-pay.jpg" alt="微信赞赏" width="200"></a>
 
 ## License
 

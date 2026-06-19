@@ -3,6 +3,7 @@ import Header from './components/Header';
 import LeagueSelector from './components/LeagueSelector';
 import OddsCalculator from './components/OddsCalculator';
 import OddsExplorer from './components/OddsExplorer';
+import Footer from './components/Footer';
 
 export default function App() {
   const {
@@ -56,6 +57,8 @@ export default function App() {
               cover={cover} queryResult={queryResult} page={page}
               updateRanges={updateRanges} resetRanges={resetRanges} goPage={goPage}
             />
+
+            <Footer />
           </>
         )}
       </div>

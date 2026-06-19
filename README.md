@@ -2,7 +2,15 @@
 
 A football betting odds analysis tool. Enter match odds to compute de-vigged true probabilities, query weighted historical win rates, and run multi-model ML predictions — using data to discourage impulsive betting.
 
+**Live Demo:** [lottery.dichen.cc](http://lottery.dichen.cc)
+
 [中文文档](README.zh-CN.md)
+
+## Screenshots
+
+![Odds Calculator](assets/screenshot-hero.png)
+
+![Match Explorer](assets/screenshot-table.png)
 
 ## Features
 
@@ -41,7 +49,7 @@ cd server
 uvicorn main:app --reload
 ```
 
-First startup takes 1-2 minutes to train models. When the backend is not running, the ML module falls back to local approximations.
+The server loads pre-trained model artifacts from `model/artifacts/` (train locally with `python model/train_models.py`). When the backend is not running, the ML module falls back to local approximations.
 
 ## Database
 
@@ -96,6 +104,12 @@ npm run build
 ├── model/          # Model training script
 └── design/         # UI/UX design reference (read-only)
 ```
+
+## Support
+
+If this project helped you, consider buying me a coffee :)
+
+<a href="assets/wechat-pay.jpg"><img src="assets/wechat-pay.jpg" alt="WeChat Pay" width="200"></a>
 
 ## License
 

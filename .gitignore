@@ -33,8 +33,10 @@ Thumbs.db
 # Private notes
 NOTES.md
 
-# Trained model artifacts
+# Trained model artifacts & outputs
 model/artifacts/
+model/calibration_curves.png
+test-results/
 
 # Claude Code
 .claude/
