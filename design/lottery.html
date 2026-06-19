@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #f4f2ee; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #ddd6c9; border-radius: 6px; }
+  ::-webkit-scrollbar-thumb:hover { background: #cfc7b6; }
+  ::-webkit-scrollbar-track { background: transparent; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+</helmet>
+
+<div style="min-height:100vh;background:#f4f2ee;color:#211f1c;font-family:'Manrope',system-ui,sans-serif;padding:26px 28px 44px;">
+  <div style="max-width:1180px;margin:0 auto;">
+
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:16px;border-bottom:1px solid #e3ded3;margin-bottom:18px;">
+      <div>
+        <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#a8a298;font-weight:700;margin-bottom:7px;">竞彩 · 赌球劝退器</div>
+        <h1 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.05;">收手吧，阿祖！</h1>
+        <p style="margin:9px 0 0;color:#79736a;font-size:14px;max-width:620px;line-height:1.5;">收手吧阿祖，你不记得你“3000 万，德国赢”了吗？干不赢大老庄的！</p>
+      </div>
+      <div style="text-align:right;font-family:'IBM Plex Mono',monospace;color:#a8a298;font-size:12px;line-height:1.8;white-space:nowrap;">
+        <div>{{ dateNote }}</div>
+        <div>有效样本 <span style="color:#211f1c;font-weight:600;">{{ totalValid }}</span> 场</div>
+      </div>
+    </header>
+
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:120px 0;color:#a8a298;">
+        <div style="width:34px;height:34px;border:3px solid #e3ded3;border-top-color:#1b806a;border-radius:50%;animation:spin .8s linear infinite;"></div>
+        <div style="font-size:14px;">正在加载并解析数据库…</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ loadError }}">
+      <div style="padding:24px;border:1px solid #e6b3ac;border-radius:12px;background:#fbf0ee;color:#a3392c;font-family:'IBM Plex Mono',monospace;font-size:13px;">{{ loadError }}</div>
+    </sc-if>
+
+    <sc-if value="{{ loaded }}">
+
+      <!-- LEAGUES -->
+      <section style="background:#ffffff;border:1px solid #e7e3da;border-radius:16px;padding:14px 22px;margin-bottom:16px;box-shadow:0 1px 2px rgba(40,34,20,.03);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="display:flex;align-items:baseline;gap:10px;">
+            <div style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #34312d; text-transform: uppercase">联赛 / 赛事</div>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;">已选 {{ selectedCount }} / {{ leagueTotal }}</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onClick="{{ selectAll }}" style="background:#f4f2ee;border:1px solid #e3ded3;color:#5d5750;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;" style-hover="border-color:#1b806a;color:#1b806a;">全选</button>
+            <button onClick="{{ clearAll }}" style="background:#f4f2ee;border:1px solid #e3ded3;color:#5d5750;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;" style-hover="border-color:#1b806a;color:#1b806a;">清空</button>
+            <button onClick="{{ toggleLeaguesPanel }}" style="background:#1b806a;border:1px solid #1b806a;color:#fff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;">{{ leaguesCaret }}</button>
+          </div>
+        </div>
+        <sc-if value="{{ leaguesOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:12px;">
+            <sc-for list="{{ leagueCats }}" as="cat" hint-placeholder-count="6">
+              <div>
+                <button onClick="{{ cat.toggleOpen }}" style="{{ cat.headerStyle }}">
+                  <span style="font-size:11px;color:#b3ada3;width:12px;">{{ cat.caret }}</span>
+                  <span style="font-size:13px;font-weight:700;color:#211f1c;">{{ cat.name }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ cat.badgeColor }};">{{ cat.sel }} / {{ cat.total }}</span>
+                  <span style="flex:1;"></span>
+                  <span onClick="{{ cat.selAll }}" style="font-size:11px;font-weight:600;color:#79736a;padding:3px 8px;border-radius:6px;cursor:pointer;" style-hover="color:#1b806a;">全选</span>
+                  <span onClick="{{ cat.clrAll }}" style="font-size:11px;font-weight:600;color:#79736a;padding:3px 8px;border-radius:6px;cursor:pointer;" style-hover="color:#1b806a;">清空</span>
+                </button>
+                <sc-if value="{{ cat.open }}">
+                  <div style="display:flex;flex-wrap:wrap;gap:6px;padding:8px 4px 4px;">
+                    <sc-for list="{{ cat.chips }}" as="lg" hint-placeholder-count="6">
+                      <button onClick="{{ lg.toggle }}" style="{{ lg.chipStyle }}"><span>{{ lg.name }}</span><span style="{{ lg.badgeStyle }}">{{ lg.count }}</span></button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+      </section>
+
+      <!-- ODDS CALCULATOR -->
+      <section style="background:#ffffff;border:1px solid #e7e3da;border-radius:16px;padding:18px 24px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(40,34,20,.03);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #34312D; text-transform: uppercase">输得明白吗？</div>
+          <button onClick="{{ calc.clear }}" style="background:#f4f2ee;border:1px solid #e3ded3;color:#5d5750;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;" style-hover="border-color:#1b806a;color:#1b806a;">清空</button>
+        </div>
+        <p style="margin:0 0 14px;color:#b3ada3;font-size:13px;line-height:1.5;">输入一场比赛的胜/平/负赔率，计算各项的<span style="color:#79736a;font-weight:600;">盈亏平衡概率</span>（1 ÷ 赔率）与<span style="color:#79736a;font-weight:600;">去水后市场概率</span>（三者归一化到 100%）。</p>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+          <sc-for list="{{ calc.cells }}" as="c" hint-placeholder-count="3">
+            <div style="background:#faf9f6;border:1px solid #ece8e0;border-radius:14px;padding:14px 16px 13px;border-top:3px solid {{ c.color }};">
+              <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:{{ c.color }};display:inline-block;"></span>
+                <span style="font-size:14px;font-weight:700;color:#211f1c;">{{ c.name }}</span>
+              </div>
+              <input type="number" step="0.01" placeholder="赔率" value="{{ c.inputVal }}" onInput="{{ c.onInput }}" style="width:100%;background:#ffffff;border:1px solid #e3ded3;border-radius:9px;color:{{ c.color }};font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;text-align:center;padding:9px 4px;margin-bottom:11px;" style-focus="border-color:{{ c.color }};outline:none;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                <span style="font-size:11.5px;color:#b3ada3;">盈亏平衡</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#5d5750;">{{ c.be }}</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                <span style="font-size:11.5px;color:#b3ada3;">去水市场</span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:{{ c.color }};">{{ c.mk }}</span>
+              </div>
+              <div style="height:5px;border-radius:3px;background:#ece8e0;margin-top:10px;overflow:hidden;">
+                <div style="height:100%;border-radius:3px;background:{{ c.color }};width: {{ c.w }}%;"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;gap:28px;margin-top:14px;padding-top:14px;border-top:1px solid #ece8e0;font-size:13px;">
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span style="color:#b3ada3;">隐含概率合计</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#211f1c;">{{ calc.sumLabel }}</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:8px;">
+            <span style="color:#b3ada3;">水位 / 庄家利润</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#b4690e;">{{ calc.marginLabel }}</span>
+          </div>
+        </div>
+
+        <!-- WEIGHTED WIN RATE -->
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid #ece8e0;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.1em;color:#a8a298;text-transform:uppercase;margin-bottom:14px;">加权综合胜率</div>
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:9px;">
+              <span style="font-size:12px;color:#b3ada3;white-space:nowrap;">临近样本数量 K</span>
+              <input type="number" step="50" min="2" value="{{ weighted.neighbors }}" onInput="{{ weighted.setNeighbors }}" style="width:82px;background:#faf9f6;border:1px solid #e3ded3;border-radius:8px;color:#211f1c;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:8px 4px;" style-focus="border-color:#1b806a;outline:none;">
+            </div>
+            <button onClick="{{ weighted.onCompute }}" style="{{ weighted.btnStyle }}" style-hover="filter:brightness(0.94)">计算加权综合胜率</button>
+            <div style="flex:1;min-width:160px;font-size:12px;color:#b3ada3;line-height:1.5;">基于<span style="color:#79736a;font-weight:600;">所选联赛</span>的历史样本，按去水概率距离做三次核加权。</div>
+          </div>
+
+          <sc-if value="{{ weighted.error }}">
+            <div style="margin-top:16px;color:#a3392c;font-size:13px;">{{ weighted.error }}</div>
+          </sc-if>
+
+          <sc-if value="{{ weighted.hasResult }}">
+            <div style="margin-top:18px;">
+              <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:12px;">
+                <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:2px;">
+                  <span style="font-size:11px;color:#b3ada3;">加权胜率 · 理论回报率</span>
+                </div>
+                <sc-for list="{{ weighted.rows }}" as="wr" hint-placeholder-count="3">
+                  <div style="background:#faf9f6;border:1px solid #ece8e0;border-radius:12px;border-left:3px solid {{ wr.color }};padding:10px 16px;">
+                    <div style="display:flex;align-items:center;gap:16px;">
+                      <span style="font-size:13px;font-weight:700;color:#211f1c;width:34px;flex:none;">{{ wr.name }}</span>
+                      <div style="display:flex;align-items:baseline;gap:3px;width:74px;flex:none;">
+                        <span style="font-family:'IBM Plex Mono',monospace;font-size:25px;font-weight:600;color:{{ wr.color }};line-height:1;">{{ wr.pct }}</span>
+                        <span style="font-size:13px;color:#b3ada3;">%</span>
+                      </div>
+                      <div style="flex:1;min-width:40px;height:6px;border-radius:3px;background:#ece8e0;overflow:hidden;">
+                        <div style="height:100%;border-radius:3px;background:{{ wr.color }};width: {{ wr.w }}%;"></div>
+                      </div>
+                      <div style="text-align:right;width:96px;flex:none;">
+                        <div style="font-size:10px;color:#b3ada3;margin-bottom:2px;">理论回报率</div>
+                        <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:{{ wr.evColor }};">{{ wr.ev }}</div>
+                      </div>
+                    </div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#b3ada3;margin:6px 0 0 50px;">实际场次 {{ wr.n }} 场</div>
+                  </div>
+                </sc-for>
+              </div>
+
+              <sc-if value="{{ weighted.hasRange }}">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#79736a;line-height:1.7;margin-bottom:14px;">最近 {{ weighted.k }} 场近邻赔率范围 · {{ weighted.rangeText }}</div>
+              </sc-if>
+
+              <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:baseline;padding:13px 18px;background:#faf9f6;border:1px solid #ece8e0;border-radius:12px;">
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                  <span style="font-size:12.5px;color:#b3ada3;">有效样本量 N<sub>eff</sub></span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;color:{{ weighted.neffColor }};">{{ weighted.neff }}</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                  <span style="font-size:12.5px;color:#b3ada3;">纳入近邻</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#5d5750;">{{ weighted.included }} / {{ weighted.k }}</span>
+                </div>
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                  <span style="font-size:12.5px;color:#b3ada3;">样本池</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#5d5750;">{{ weighted.pool }}</span>
+                </div>
+                <div style="flex:1;min-width:200px;font-size:12px;color:#79736a;line-height:1.5;">{{ weighted.advice }}</div>
+              </div>
+
+              <div style="margin-top:16px;">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;">
+                  <span style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#79736a;">历史近邻明细</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#b3ada3;">按赔率相似度排序 · 最近 {{ weighted.neighborCount }} 场</span>
+                </div>
+                <div style="border:1px solid #ece8e0;border-radius:12px;overflow:hidden;">
+                  <div style="overflow-x:auto;max-height:360px;overflow-y:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;">
+                      <thead>
+                        <tr style="position:sticky;top:0;background:#faf9f6;z-index:1;">
+                          <th style="text-align:center;padding:10px 14px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">日期</th>
+                          <th style="text-align:center;padding:10px 14px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">联赛</th>
+                          <th style="text-align:center;padding:10px 14px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">主队</th>
+                          <th style="text-align:center;padding:10px 14px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">客队</th>
+                          <th style="text-align:center;padding:10px 14px;color:#1b806a;font-weight:600;border-bottom:1px solid #ece8e0;">主胜</th>
+                          <th style="text-align:center;padding:10px 14px;color:#b4690e;font-weight:600;border-bottom:1px solid #ece8e0;">平</th>
+                          <th style="text-align:center;padding:10px 14px;color:#2f5fd0;font-weight:600;border-bottom:1px solid #ece8e0;">客胜</th>
+                          <th style="text-align:center;padding:10px 14px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">比分</th>
+                          <th style="text-align:center;padding:10px 14px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">结果</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <sc-for list="{{ weighted.neighborRows }}" as="nr" hint-placeholder-count="8">
+                          <tr style="border-bottom:1px solid #f1ede4;">
+                            <td style="padding:9px 14px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#a8a298;">{{ nr.date }}</td>
+                            <td style="padding:9px 14px;text-align:center;color:#5d5750;">{{ nr.league }}</td>
+                            <td style="padding:9px 14px;text-align:center;color:#211f1c;font-weight:500;">{{ nr.home }}</td>
+                            <td style="padding:9px 14px;text-align:center;color:#211f1c;font-weight:500;">{{ nr.away }}</td>
+                            <td style="padding:9px 14px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#5d5750;">{{ nr.h }}</td>
+                            <td style="padding:9px 14px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#5d5750;">{{ nr.d }}</td>
+                            <td style="padding:9px 14px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#5d5750;">{{ nr.a }}</td>
+                            <td style="padding:9px 14px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#a8a298;">{{ nr.score }}</td>
+                            <td style="padding:9px 14px;text-align:center;"><span style="display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:700;color:{{ nr.resColor }};background:{{ nr.resBg }};">{{ nr.resLabel }}</span></td>
+                          </tr>
+                        </sc-for>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- ML PREDICTION -->
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid #ece8e0;">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.1em;color:#a8a298;text-transform:uppercase;margin-bottom:14px;">机器学习预测</div>
+            <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;">
+              <button onClick="{{ ml.runML }}" style="{{ ml.btnStyle }}" style-hover="filter:brightness(0.94)">运行模型预测</button>
+              <div style="flex:1;min-width:200px;font-size:12px;color:#b3ada3;line-height:1.5;">沿用上方输入的胜/平/负赔率，多个<span style="color:#79736a;font-weight:600;">示意模型</span>给出概率预测、期望回报 EV 与下注建议；每列<span style="color:#1b806a;font-weight:600;">最优值以绿色高亮</span>（概率/EV 取最高，LogLoss/Brier 取最低）。</div>
+            </div>
+
+            <sc-if value="{{ ml.show }}">
+              <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#79736a;margin:18px 0 12px;">各模型预测结果</div>
+          <div style="overflow-x:auto;border:1px solid #ece8e0;border-radius:12px;">
+            <table style="width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;min-width:900px;">
+              <thead>
+                <tr style="background:#faf9f6;">
+                  <th style="text-align:center;padding:11px 16px;color:#a8a298;font-weight:600;">模型名称</th>
+                  <th style="text-align:center;padding:11px 13px;color:#a8a298;font-weight:600;">LogLoss</th>
+                  <th style="text-align:center;padding:11px 13px;color:#a8a298;font-weight:600;border-right:1px solid #ece8e0;">Brier</th>
+                  <th style="text-align:center;padding:11px 13px;color:#1b806a;font-weight:600;">主胜概率</th>
+                  <th style="text-align:center;padding:11px 13px;color:#b4690e;font-weight:600;">平局概率</th>
+                  <th style="text-align:center;padding:11px 13px;color:#2f5fd0;font-weight:600;border-right:1px solid #ece8e0;">客胜概率</th>
+                  <th style="text-align:center;padding:11px 13px;color:#a8a298;font-weight:600;">EV 主胜</th>
+                  <th style="text-align:center;padding:11px 13px;color:#a8a298;font-weight:600;">EV 平局</th>
+                  <th style="text-align:center;padding:11px 13px;color:#a8a298;font-weight:600;">EV 客胜</th>
+                  <th style="text-align:center;padding:11px 16px;color:#a8a298;font-weight:600;">建议</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{ ml.modelRows }}" as="m" hint-placeholder-count="6">
+                  <tr style="{{ m.rowStyle }}">
+                    <td style="padding:11px 16px;text-align:center;"><span style="display:inline-flex;align-items:center;gap:8px;"><span style="font-weight:600;color:#211f1c;">{{ m.name }}</span></span></td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.ll.color }};font-weight:{{ m.ll.weight }};">{{ m.ll.txt }}</td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.br.color }};font-weight:{{ m.br.weight }};border-right:1px solid #ece8e0;">{{ m.br.txt }}</td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.ph.color }};font-weight:{{ m.ph.weight }};">{{ m.ph.txt }}</td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.pd.color }};font-weight:{{ m.pd.weight }};">{{ m.pd.txt }}</td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.pa.color }};font-weight:{{ m.pa.weight }};border-right:1px solid #ece8e0;">{{ m.pa.txt }}</td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.evh.color }};font-weight:{{ m.evh.weight }};">{{ m.evh.txt }}</td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.evd.color }};font-weight:{{ m.evd.weight }};">{{ m.evd.txt }}</td>
+                    <td style="padding:11px 13px;text-align:center;font-family:'IBM Plex Mono',monospace;color:{{ m.eva.color }};font-weight:{{ m.eva.weight }};">{{ m.eva.txt }}</td>
+                    <td style="padding:11px 16px;text-align:center;"><span style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;color:{{ m.sugColor }};background:{{ m.sugBg }};">{{ m.sug }}</span></td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin:12px 0 0;font-size:11.5px;color:#b3ada3;line-height:1.5;">LogLoss / Brier 基于 8,886 场测试集（2024-07 ~ 2026-06）评估，固定不变；两项均越低越好。</p>
+
+            </sc-if>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXPLORE MODULE (single card) -->
+      <section style="background:#ffffff;border:1px solid #e7e3da;border-radius:16px;padding:18px 24px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(40,34,20,.03);">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div style="display:flex;align-items:baseline;gap:10px;">
+            <div style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #34312D; text-transform: uppercase">输球赔率探索</div>
+            <span style="font-size:11px;color:#b3ada3;">赔率区间 · 结果分布 · 比赛明细，实时联动</span>
+          </div>
+          <button onClick="{{ toggleExplore }}" style="background:#1b806a;border:1px solid #1b806a;color:#fff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;">{{ exploreCaret }}</button>
+        </div>
+
+        <sc-if value="{{ exploreOpen }}" hint-placeholder-val="{{ true }}">
+        <!-- SLIDERS sub-block -->
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid #ece8e0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#79736a;">赔率区间</div>
+            <button onClick="{{ reset }}" style="background:#f4f2ee;border:1px solid #e3ded3;color:#5d5750;font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:8px;cursor:pointer;" style-hover="background:#1b806a;border-color:#1b806a;color:#fff;">重置全部</button>
+          </div>
+
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <sc-for list="{{ sliders }}" as="s" hint-placeholder-count="3">
+            <div>
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;">
+                <div style="display:flex;align-items:baseline;gap:8px;">
+                  <span style="width:9px;height:9px;border-radius:50%;background:{{ s.color }};display:inline-block;"></span>
+                  <span style="font-size:15px;font-weight:700;">{{ s.name }}</span>
+                  
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;white-space:nowrap;">
+                  <input type="number" step="0.01" min="{{ s.boundLo }}" max="{{ s.boundHi }}" key="{{ s.minKey }}" defaultValue="{{ s.minLabel }}" onBlur="{{ s.commitMin }}" onKeyDown="{{ s.inputKeyDown }}" style="width:74px;background:#faf9f6;border:1px solid #e3ded3;border-radius:8px;color:{{ s.color }};font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:7px 4px;" style-focus="border-color:{{ s.color }};outline:none;">
+                  <span style="color:#b3ada3;">—</span>
+                  <input type="number" step="0.01" min="{{ s.boundLo }}" max="{{ s.boundHi }}" key="{{ s.maxKey }}" defaultValue="{{ s.maxLabel }}" onBlur="{{ s.commitMax }}" onKeyDown="{{ s.inputKeyDown }}" style="width:74px;background:#faf9f6;border:1px solid #e3ded3;border-radius:8px;color:{{ s.color }};font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:7px 4px;" style-focus="border-color:{{ s.color }};outline:none;">
+                  <div style="margin-left:6px;padding-left:14px;border-left:1px solid #e3ded3;text-align:right;min-width:64px;">
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:{{ s.color }};line-height:1;">{{ s.coverPct }}%</div>
+                    <div style="font-size:11px;color:#b3ada3;margin-top:3px;">占 {{ s.coverN }} 场</div>
+                  </div>
+                </div>
+              </div>
+
+              <svg viewBox="0 0 100 46" preserveAspectRatio="none" style="width:100%;height:25px;display:block;margin-bottom:0;">
+                <path d="{{ s.grayPath }}" fill="#e6e0d4"></path>
+                <path d="{{ s.colorPath }}" fill="{{ s.color }}"></path>
+              </svg>
+
+              <div ref="{{ s.setTrack }}" onPointerDown="{{ s.onTrackDown }}" style="position:relative;height:16px;cursor:pointer;touch-action:none;">
+                <div style="position:absolute;left:0;right:0;top:0;height:4px;background:#ece8e0;border-radius:2px;"></div>
+                <div style="position:absolute;top:0;height:4px;border-radius:2px;background:{{ s.color }};opacity:.9;left: {{ s.minPct }}%;width: {{ s.fillWidth }}%;"></div>
+                <div onPointerDown="{{ s.onMinDown }}" style="position:absolute;top:-5px;width:14px;height:14px;border-radius:50%;background:#ffffff;border:2px solid {{ s.color }};box-shadow:0 2px 5px rgba(40,34,20,.18);transform:translateX(-50%);cursor:grab;touch-action:none;left: {{ s.minPct }}%;"></div>
+                <div onPointerDown="{{ s.onMaxDown }}" style="position:absolute;top:-5px;width:14px;height:14px;border-radius:50%;background:#ffffff;border:2px solid {{ s.color }};box-shadow:0 2px 5px rgba(40,34,20,.18);transform:translateX(-50%);cursor:grab;touch-action:none;left: {{ s.maxPct }}%;"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#b3ada3;margin-top:4px;">
+                <span>{{ s.loLabel }}</span>
+                <span>{{ s.hiLabel }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </div>
+
+        <!-- STATS sub-block -->
+        <div style="margin-top:22px;padding-top:18px;border-top:1px solid #ece8e0;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#79736a;">范围内结果分布</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#79736a;">匹配 <span style="color:#211f1c;font-weight:600;font-size:16px;">{{ matched }}</span> 场</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;">
+          <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3">
+            <div style="background:#faf9f6;border:1px solid #ece8e0;border-radius:12px;padding:15px 20px;border-top:3px solid {{ st.color }};">
+              <div style="font-size:13px;color:#79736a;font-weight:600;margin-bottom:6px;">{{ st.name }}</div>
+              <div style="display:flex;align-items:baseline;gap:8px;">
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:{{ st.color }};line-height:1;">{{ st.pct }}</span>
+                <span style="font-size:16px;color:#b3ada3;">%</span>
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;margin-top:6px;">{{ st.count }} 场</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;background:#ece8e0;">
+          <div style="background:#1b806a;width: {{ hPct }}%;"></div>
+          <div style="background:#b4690e;width: {{ dPct }}%;"></div>
+          <div style="background:#2f5fd0;width: {{ aPct }}%;"></div>
+        </div>
+        </div>
+
+        <!-- TABLE sub-block -->
+        <div style="margin-top:22px;padding-top:18px;border-top:1px solid #ece8e0;">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#79736a;">满足条件的比赛</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;">{{ tableNote }}</div>
+        </div>
+        <div style="border:1px solid #ece8e0;border-radius:12px;overflow:hidden;">
+        <div style="overflow-x:auto;max-height:560px;overflow-y:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap;">
+            <thead>
+              <tr style="position:sticky;top:0;background:#ffffff;z-index:1;">
+                <th style="text-align:center;padding:12px 18px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">日期</th>
+                <th style="text-align:center;padding:12px 18px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">联赛</th>
+                <th style="text-align:center;padding:12px 18px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">主队</th>
+                <th style="text-align:center;padding:12px 18px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">客队</th>
+                <th style="text-align:center;padding:12px 18px;color:#1b806a;font-weight:600;border-bottom:1px solid #ece8e0;">主胜</th>
+                <th style="text-align:center;padding:12px 18px;color:#b4690e;font-weight:600;border-bottom:1px solid #ece8e0;">平</th>
+                <th style="text-align:center;padding:12px 18px;color:#2f5fd0;font-weight:600;border-bottom:1px solid #ece8e0;">客胜</th>
+                <th style="text-align:center;padding:12px 18px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">比分</th>
+                <th style="text-align:center;padding:12px 18px;color:#a8a298;font-weight:600;border-bottom:1px solid #ece8e0;">结果</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
+                <tr style="border-bottom:1px solid #f1ede4;">
+                  <td style="padding:9px 18px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#a8a298;">{{ r.date }}</td>
+                  <td style="padding:9px 18px;text-align:center;color:#5d5750;">{{ r.league }}</td>
+                  <td style="padding:9px 18px;text-align:center;color:#211f1c;font-weight:500;">{{ r.home }}</td>
+                  <td style="padding:9px 18px;text-align:center;color:#211f1c;font-weight:500;">{{ r.away }}</td>
+                  <td style="padding:9px 18px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#5d5750;">{{ r.h }}</td>
+                  <td style="padding:9px 18px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#5d5750;">{{ r.d }}</td>
+                  <td style="padding:9px 18px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#5d5750;">{{ r.a }}</td>
+                  <td style="padding:9px 18px;text-align:center;font-family:'IBM Plex Mono',monospace;color:#a8a298;">{{ r.score }}</td>
+                  <td style="padding:9px 18px;text-align:center;">
+                    <span style="display:inline-block;padding:3px 11px;border-radius:20px;font-size:12px;font-weight:700;color:{{ r.resColor }};background:{{ r.resBg }};">{{ r.resLabel }}</span>
+                  </td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        <sc-if value="{{ pagination.hasPages }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 24px;border-top:1px solid #ece8e0;flex-wrap:wrap;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;">{{ pagination.pageLabel }}</div>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <button onClick="{{ pagination.prev }}" style="{{ pagination.prevStyle }}">‹ 上一页</button>
+              <sc-for list="{{ pagination.pageItems }}" as="pi" hint-placeholder-count="5">
+                <sc-if value="{{ pi.gap }}">
+                  <span style="min-width:20px;text-align:center;color:#c2bcb0;font-family:'IBM Plex Mono',monospace;">…</span>
+                </sc-if>
+                <sc-if value="{{ pi.notGap }}">
+                  <button onClick="{{ pi.onClick }}" style="{{ pi.style }}">{{ pi.label }}</button>
+                </sc-if>
+              </sc-for>
+              <button onClick="{{ pagination.next }}" style="{{ pagination.nextStyle }}">下一页 ›</button>
+            </div>
+          </div>
+        </sc-if>
+        </div>
+        </div>
+        </sc-if>
+        </section>
+
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { loaded: false, loading: true, loadError: null };
+
+  DB_PATH = 'uploads/db_file-1781786185495.db';
+  COLORS = { h: '#1b806a', d: '#b4690e', a: '#2f5fd0' };
+  POS = '#1b806a';
+  NEG = '#c0392b';
+  NAMES = { h: '主胜', d: '平局', a: '客胜' };
+  STEP = 0.01;
+  GAP = 0.05;
+
+  DEFAULT_LEAGUES = ['世界杯', '英超', '西甲', '德甲', '意甲', '法甲', '欧冠', '国际赛', '非洲杯', '亚洲杯', '美洲杯'];
+  LEAGUES = [];
+  leagueCount = {};
+
+  LEAGUE_CATS = [
+    { name: '五大联赛', keys: ['英超', '西甲', '德甲', '意甲', '法甲'] },
+    { name: '欧洲联赛', keys: ['英冠', '英甲', '德乙', '法乙', '荷甲', '荷乙', '葡超', '瑞超', '挪超', '俄超', '比甲', '芬超', '英锦标赛'] },
+    { name: '国家队赛事', keys: ['世界杯', '世预赛', '欧洲杯', '欧锦赛', '欧预赛', '欧国联', '美洲杯', '非洲杯', '亚洲杯', '亚预赛', '国际赛', '女世界杯', '女亚洲杯', '奥运男足', '奥运女足', '亚运男足', '麒麟杯', '东亚锦', '女东亚锦', '金杯赛', '中北美冠'] },
+    { name: '洲际俱乐部', keys: ['欧冠', '欧罗巴', '欧协联', '欧超杯', '亚冠精英', '亚冠乙', '解放者杯', '俱世界杯'] },
+    { name: '亚洲及海外联赛', keys: ['日职', '日乙', '韩职', '澳超', '沙职', '美职', '巴甲', '墨超'] },
+    { name: '各国杯赛', keys: ['英足总杯', '英联赛杯', '德国杯', '意大利杯', '法国杯', '西国王杯', '巴西杯', '日联赛杯', '日天皇杯', '韩国杯', '荷兰杯', '西超杯', '葡萄牙杯', '意超杯', '德超杯', '法联赛杯', '英社区盾', '澳大利亚杯', '挪威杯', '法超杯', '公开赛杯', '杯赛', 'Play-offs'] },
+  ];
+  catOpen = { '五大联赛': true };
+  leaguesOpen = false;
+  exploreOpen = true;
+
+  categorize() {
+    const used = {};
+    const groups = this.LEAGUE_CATS.map(cat => {
+      const list = this.LEAGUES.filter(l => {
+        if (used[l]) return false;
+        const hit = cat.keys.some(k => l === k || l.indexOf(k) === 0);
+        if (hit) used[l] = true;
+        return hit;
+      });
+      return { name: cat.name, leagues: list };
+    });
+    const rest = this.LEAGUES.filter(l => !used[l]);
+    if (rest.length) groups.push({ name: '其他', leagues: rest });
+    this.catGroups = groups.filter(g => g.leagues.length);
+  }
+
+  toggleCat = (name) => {
+    this.catOpen = { ...this.catOpen, [name]: !this.catOpen[name] };
+    this.forceUpdate();
+  };
+  toggleLeaguesPanel = () => { this.leaguesOpen = !this.leaguesOpen; this.forceUpdate(); };
+  toggleExplore = () => { this.exploreOpen = !this.exploreOpen; this.forceUpdate(); };
+  setCatLeagues = (group, on) => {
+    const next = { ...this.selected };
+    group.leagues.forEach(l => { next[l] = on; });
+    this.selected = next;
+    this.computeHistograms();
+    this.runQuery();
+  };
+
+  calc = { h: '1.86', d: '3.00', a: '3.87' };
+  neighbors = '800';
+  weighted = null;
+  tab = 'weighted';
+  mlRan = false;
+
+  setTab = (t) => { this.tab = t; this.forceUpdate(); };
+  runML = () => { if (this.calcResult().allIn) { this.mlRan = true; this.forceUpdate(); } };
+  tabStyle(active) {
+    return active
+      ? 'background:#211f1c;border:1px solid #211f1c;color:#fff;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:9px;cursor:pointer;'
+      : 'background:#f4f2ee;border:1px solid #e3ded3;color:#79736a;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:700;padding:9px 18px;border-radius:9px;cursor:pointer;';
+  }
+
+  page = 0;
+  PAGE_SIZE = 50;
+
+  // ===== ML module =====
+  mlNN = null;
+  calib = null;
+  MODEL_META = {
+    market: { name: '去水市场基准', color: '#a8a298', ll: 0.98976, br: 0.19682 },
+    lr: { name: '逻辑回归', color: '#2f5fd0', ll: 0.99198, br: 0.19718 },
+    rf: { name: '随机森林', color: '#1b806a', ll: 0.99716, br: 0.19837 },
+    lgb: { name: 'LightGBM', color: '#b4690e', ll: 0.99992, br: 0.19899 },
+    cat: { name: 'CatBoost', color: '#a23b72', ll: 0.99142, br: 0.19714 },
+    ensemble: { name: '集成模型', color: '#211f1c', ll: 0.99114, br: 0.19709 },
+  };
+  ML_ORDER = ['market', 'lr', 'rf', 'lgb', 'cat', 'ensemble'];
+  // additive prob offsets vs. de-vigged market (illustrative model signatures)
+  ML_OFF = {
+    lr: [0.001, 0.038, -0.040],
+    rf: [0.032, -0.017, -0.014],
+    lgb: [-0.134, 0.016, 0.118],
+    cat: [0.098, -0.028, -0.070],
+  };
+  tracks = {};
+  drag = null;
+
+  componentDidMount() {
+    this._onMove = (e) => this.onMove(e);
+    this._onUp = () => { this.drag = null; document.body.style.userSelect = ''; };
+    window.addEventListener('pointermove', this._onMove);
+    window.addEventListener('pointerup', this._onUp);
+    this.waitForSql();
+  }
+  componentWillUnmount() {
+    window.removeEventListener('pointermove', this._onMove);
+    window.removeEventListener('pointerup', this._onUp);
+  }
+
+  waitForSql(tries = 0) {
+    if (window.initSqlJs) return this.loadDb();
+    if (tries > 200) { this.setState({ loading: false, loadError: '加载 sql.js 失败（网络问题）。' }); return; }
+    setTimeout(() => this.waitForSql(tries + 1), 50);
+  }
+
+  async loadDb() {
+    try {
+      const SQL = await window.initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+      const buf = await (await fetch(this.DB_PATH)).arrayBuffer();
+      this.db = new SQL.Database(new Uint8Array(buf));
+
+      const mm = this.one(`SELECT MIN(h),MAX(h),MIN(d),MAX(d),MIN(a),MAX(a) FROM matches WHERE ${this.VALID}`);
+      this.bounds = {
+        h: [mm[0], mm[1]], d: [mm[2], mm[3]], a: [mm[4], mm[5]],
+      };
+      this.ranges = {
+        h: [mm[0], mm[1]], d: [mm[2], mm[3]], a: [mm[4], mm[5]],
+      };
+      const tv = this.one(`SELECT COUNT(*) FROM matches WHERE ${this.VALID}`)[0];
+      const dr = this.one(`SELECT MIN(match_date), MAX(match_date) FROM matches WHERE ${this.VALID}`);
+
+      // all leagues by frequency
+      const lr = this.db.exec(`SELECT league_name_abbr, COUNT(*) c FROM matches WHERE ${this.VALID} GROUP BY league_name_abbr ORDER BY c DESC`);
+      this.LEAGUES = []; this.leagueCount = {};
+      if (lr[0]) lr[0].values.forEach(([name, c]) => {
+        if (name == null || name === '') return;
+        this.LEAGUES.push(name); this.leagueCount[name] = c;
+      });
+
+      this.selected = {};
+      this.DEFAULT_LEAGUES.forEach(l => { if (this.leagueCount[l] != null) this.selected[l] = true; });
+      this.categorize();
+
+      this.totalValid = tv.toLocaleString();
+      this.dateNote = `${dr[0]} ~ ${dr[1]}`;
+
+      this.computeHistograms();
+      this.setState({ loaded: true, loading: false });
+      this.runQuery();
+    } catch (e) {
+      this.setState({ loading: false, loadError: '读取数据库出错：' + e.message });
+    }
+  }
+
+  get VALID() {
+    return `h IS NOT NULL AND win_flag IN ('H','D','A') AND sections_no999 IS NOT NULL AND sections_no999 != '无效场次'`;
+  }
+
+  one(sql) { const r = this.db.exec(sql); return r[0] ? r[0].values[0] : []; }
+
+  BINS = 40;
+  computeHistograms() {
+    if (!this.db) return;
+    const picked = this.LEAGUES.filter(l => this.selected[l]);
+    const inList = picked.length ? `(${picked.map(l => `'${l}'`).join(',')})` : `('')`;
+    const r = this.db.exec(`SELECT h,d,a FROM matches WHERE ${this.VALID} AND league_name_abbr IN ${inList}`);
+    const vals = r[0] ? r[0].values : [];
+    this.hist = {};
+    const H = 46, TOP = 2.5, N = 110, R = 2;
+    const gw = [];
+    for (let j = -R; j <= R; j++) gw.push(Math.exp(-(j * j) / 2));
+    ['h', 'd', 'a'].forEach((key, ci) => {
+      const [lo, hi] = this.bounds[key];
+      const binW = (hi - lo) / this.BINS || 1;
+      const counts = new Array(this.BINS).fill(0);
+      for (const row of vals) {
+        const v = row[ci];
+        if (v == null) continue;
+        let idx = Math.floor((v - lo) / binW);
+        if (idx < 0) idx = 0; if (idx >= this.BINS) idx = this.BINS - 1;
+        counts[idx]++;
+      }
+      // gaussian smooth
+      const sm = counts.map((_, i) => {
+        let s = 0, w = 0;
+        for (let j = -R; j <= R; j++) {
+          const k = i + j;
+          if (k < 0 || k >= this.BINS) continue;
+          s += counts[k] * gw[j + R]; w += gw[j + R];
+        }
+        return w ? s / w : 0;
+      });
+      const mx = Math.max(1, ...sm);
+      // resample into N points across viewBox x 0..100
+      const pts = [];
+      for (let p = 0; p < N; p++) {
+        const x = (p / (N - 1)) * 100;
+        const fb = (p / (N - 1)) * (this.BINS - 1);
+        const i0 = Math.floor(fb), i1 = Math.min(this.BINS - 1, i0 + 1), t = fb - i0;
+        const val = sm[i0] * (1 - t) + sm[i1] * t;
+        const y = H - (val / mx) * (H - TOP);
+        pts.push({ x: +x.toFixed(2), y: +y.toFixed(2) });
+      }
+      this.hist[key] = { counts, max: mx, binW, lo, hi, pts, H };
+    });
+    this.totalLeague = vals.length;
+  }
+
+  whereClause() {
+    const r = this.ranges;
+    const picked = this.LEAGUES.filter(l => this.selected[l]);
+    const inList = picked.length
+      ? `(${picked.map(l => `'${l}'`).join(',')})`
+      : `('')`;
+    return `${this.VALID}`
+      + ` AND league_name_abbr IN ${inList}`
+      + ` AND h BETWEEN ${r.h[0]} AND ${r.h[1]}`
+      + ` AND d BETWEEN ${r.d[0]} AND ${r.d[1]}`
+      + ` AND a BETWEEN ${r.a[0]} AND ${r.a[1]}`;
+  }
+
+  toggleLeague = (l) => {
+    this.selected = { ...this.selected, [l]: !this.selected[l] };
+    this.computeHistograms();
+    this.runQuery();
+  };
+  setAllLeagues = (on) => {
+    const next = {};
+    this.LEAGUES.forEach(l => { next[l] = on; });
+    this.selected = next;
+    this.computeHistograms();
+    this.runQuery();
+  };
+
+  runQuery() {
+    if (!this.db) return;
+    this.page = 0;
+    const where = this.whereClause();
+    const counts = { H: 0, D: 0, A: 0 };
+    const cr = this.db.exec(`SELECT win_flag, COUNT(*) FROM matches WHERE ${where} GROUP BY win_flag`);
+    if (cr[0]) cr[0].values.forEach(([f, n]) => { counts[f] = n; });
+    const total = counts.H + counts.D + counts.A;
+
+    this._where = where;
+    this._total = total;
+    this._pageCount = Math.max(1, Math.ceil(total / this.PAGE_SIZE));
+    const rows = this.fetchPageRows();
+
+    // per-slider coverage: share of league-filtered matches whose own odds fall in its range
+    const picked = this.LEAGUES.filter(l => this.selected[l]);
+    const inList = picked.length ? `(${picked.map(l => `'${l}'`).join(',')})` : `('')`;
+    this.cover = {}; this.coverN = {};
+    ['h', 'd', 'a'].forEach(k => {
+      const [mn, mx] = this.ranges[k];
+      const c = this.one(`SELECT COUNT(*) FROM matches WHERE ${this.VALID} AND league_name_abbr IN ${inList} AND ${k} BETWEEN ${mn} AND ${mx}`)[0] || 0;
+      this.coverN[k] = c;
+      this.cover[k] = this.totalLeague ? (c / this.totalLeague * 100) : 0;
+    });
+
+    this._counts = counts;
+    this._rows = rows;
+    this.forceUpdate();
+  }
+
+  fetchPageRows() {
+    if (!this.db || !this._where) return [];
+    const off = this.page * this.PAGE_SIZE;
+    const tr = this.db.exec(`SELECT match_date, league_name_abbr, home_team, away_team, h, d, a, sections_no999, win_flag FROM matches WHERE ${this._where} ORDER BY match_date DESC LIMIT ${this.PAGE_SIZE} OFFSET ${off}`);
+    return tr[0] ? tr[0].values.map(v => this.rowObj(v)) : [];
+  }
+
+  goPage = (n) => {
+    const pc = this._pageCount || 1;
+    let p = n; if (p < 0) p = 0; if (p >= pc) p = pc - 1;
+    if (p === this.page) return;
+    this.page = p;
+    this._rows = this.fetchPageRows();
+    this.forceUpdate();
+  };
+
+  rowObj(v) {
+    const flag = v[8];
+    const map = {
+      H: { label: '主胜', color: this.COLORS.h, bg: 'rgba(27,128,106,.12)' },
+      D: { label: '平局', color: this.COLORS.d, bg: 'rgba(180,105,14,.12)' },
+      A: { label: '客胜', color: this.COLORS.a, bg: 'rgba(47,95,208,.12)' },
+    }[flag] || { label: '—', color: '#a8a298', bg: 'rgba(168,162,152,.14)' };
+    return {
+      date: v[0], league: v[1] || '—', home: v[2], away: v[3],
+      h: v[4] != null ? v[4].toFixed(2) : '—',
+      d: v[5] != null ? v[5].toFixed(2) : '—',
+      a: v[6] != null ? v[6].toFixed(2) : '—',
+      score: v[7], resLabel: map.label, resColor: map.color, resBg: map.bg,
+    };
+  }
+
+  // ---- dragging ----
+  startDrag(e, key, end) {
+    e.preventDefault(); e.stopPropagation();
+    this.drag = { key, end };
+    document.body.style.userSelect = 'none';
+  }
+  trackDown(e, key) {
+    // click on track -> move nearest thumb
+    const el = this.tracks[key]; if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const val = this.posToVal(e.clientX, rect, key);
+    const [mn, mx] = this.ranges[key];
+    const end = Math.abs(val - mn) <= Math.abs(val - mx) ? 'min' : 'max';
+    this.drag = { key, end };
+    document.body.style.userSelect = 'none';
+    this.applyMove(e.clientX, rect);
+  }
+  posToVal(clientX, rect, key) {
+    const [lo, hi] = this.bounds[key];
+    let ratio = (clientX - rect.left) / rect.width;
+    ratio = Math.max(0, Math.min(1, ratio));
+    let val = lo + ratio * (hi - lo);
+    return Math.round(val / this.STEP) * this.STEP;
+  }
+  onMove(e) {
+    if (!this.drag) return;
+    const el = this.tracks[this.drag.key]; if (!el) return;
+    this.applyMove(e.clientX, el.getBoundingClientRect());
+  }
+  applyMove(clientX, rect) {
+    const { key, end } = this.drag;
+    let val = this.posToVal(clientX, rect, key);
+    const [mn, mx] = this.ranges[key];
+    if (end === 'min') val = Math.min(val, mx - this.GAP);
+    else val = Math.max(val, mn + this.GAP);
+    const [lo, hi] = this.bounds[key];
+    val = Math.max(lo, Math.min(hi, val));
+    val = Math.round(val / this.STEP) * this.STEP;
+    const next = end === 'min' ? [val, mx] : [mn, val];
+    this.ranges = { ...this.ranges, [key]: next };
+    this.runQuery();
+  }
+
+  applyInput(key, end, raw) {
+    const v = parseFloat(raw);
+    if (!isFinite(v)) { this.forceUpdate(); return; }
+    const [lo, hi] = this.bounds[key];
+    const [mn, mx] = this.ranges[key];
+    let val = Math.max(lo, Math.min(hi, v));
+    val = Math.round(val / this.STEP) * this.STEP;
+    if (end === 'min') val = Math.min(val, mx - this.GAP);
+    else val = Math.max(val, mn + this.GAP);
+    const next = end === 'min' ? [val, mx] : [mn, val];
+    this.ranges = { ...this.ranges, [key]: next };
+    this.runQuery();
+  }
+
+  reset = () => {
+    if (!this.bounds) return;
+    this.ranges = {
+      h: [...this.bounds.h], d: [...this.bounds.d], a: [...this.bounds.a],
+    };
+    this.runQuery();
+  };
+
+  pct(key, val) {
+    const [lo, hi] = this.bounds[key];
+    return ((val - lo) / (hi - lo)) * 100;
+  }
+
+  setCalc = (k, raw) => {
+    this.calc = { ...this.calc, [k]: raw };
+    this.weighted = null;
+    this.mlRan = false;
+    this.forceUpdate();
+  };
+  clearCalc = () => { this.calc = { h: '', d: '', a: '' }; this.weighted = null; this.mlRan = false; this.forceUpdate(); };
+
+  setNeighbors = (raw) => { this.neighbors = raw; this.weighted = null; this.forceUpdate(); };
+
+  // ---- ML: static calibration curves (illustrative) ----
+  buildCalib() {
+    const xs = []; for (let i = 0; i <= 10; i++) xs.push(i / 10);
+    const amp = { market: 0.02, lr: 0.05, rf: 0.06, lgb: 0.10, cat: 0.07, ensemble: 0.025 };
+    this.calib = {};
+    ['h', 'd', 'a'].forEach((oc, oi) => {
+      this.calib[oc] = this.ML_ORDER.map((mk, mi) => {
+        const sign = ((oi + mi) % 2 === 0) ? 1 : -1;
+        const pts = xs.map(x => {
+          let y = x + sign * amp[mk] * 4 * x * (1 - x);
+          y = Math.max(0, Math.min(1, y));
+          return { x, y };
+        });
+        return { key: mk, pts };
+      });
+    });
+  }
+
+  devig(h, d, a) {
+    const rH = 1 / h, rD = 1 / d, rA = 1 / a, s = rH + rD + rA;
+    return [rH / s, rD / s, rA / s];
+  }
+
+  computeWeighted = () => {
+    const cr = this.calcResult();
+    if (!cr.allIn) return;
+    let K = parseInt(this.neighbors, 10);
+    if (!isFinite(K) || K < 1) K = 800;
+    const [tH, tD, tA] = [cr.norm.h, cr.norm.d, cr.norm.a];
+
+    const picked = this.LEAGUES.filter(l => this.selected[l]);
+    const inList = picked.length ? `(${picked.map(l => `'${l}'`).join(',')})` : `('')`;
+    const r = this.db.exec(`SELECT match_date, league_name_abbr, home_team, away_team, h, d, a, sections_no999, win_flag FROM matches WHERE ${this.VALID} AND league_name_abbr IN ${inList} AND h>1 AND d>1 AND a>1`);
+    const vals = r[0] ? r[0].values : [];
+
+    const arr = [];
+    for (const v of vals) {
+      const h = v[4], d = v[5], a = v[6], f = v[8];
+      const [pH, pD, pA] = this.devig(h, d, a);
+      const dist = Math.sqrt((pH - tH) ** 2 + (pD - tD) ** 2 + (pA - tA) ** 2);
+      arr.push({ dist, f, h, d, a, v });
+    }
+    arr.sort((x, y) => x.dist - y.dist);
+    const pool = arr.length;
+    if (K > pool) K = pool;
+    if (K < 2) { this.weighted = { error: '样本池太小，无法计算。' }; this.forceUpdate(); return; }
+
+    // raw outcome counts + odds range over the K nearest (for donut)
+    const cnt = { H: 0, D: 0, A: 0 };
+    let hmin = Infinity, hmax = -Infinity, dmin = Infinity, dmax = -Infinity, amin = Infinity, amax = -Infinity;
+    for (let i = 0; i < K; i++) {
+      const t = arr[i];
+      cnt[t.f] = (cnt[t.f] || 0) + 1;
+      hmin = Math.min(hmin, t.h); hmax = Math.max(hmax, t.h);
+      dmin = Math.min(dmin, t.d); dmax = Math.max(dmax, t.d);
+      amin = Math.min(amin, t.a); amax = Math.max(amax, t.a);
+    }
+
+    const dK = arr[K - 1].dist || 1e-9;
+    let sumW = 0, sumW2 = 0, wH = 0, wD = 0, wA = 0, included = 0;
+    for (let i = 0; i < K; i++) {
+      const di = arr[i].dist;
+      if (di >= dK) continue;
+      const u = di / dK;
+      const w = Math.pow(1 - Math.pow(u, 3), 3);
+      if (w <= 0) continue;
+      sumW += w; sumW2 += w * w; included++;
+      if (arr[i].f === 'H') wH += w;
+      else if (arr[i].f === 'D') wD += w;
+      else if (arr[i].f === 'A') wA += w;
+    }
+    const Neff = sumW2 ? (sumW * sumW) / sumW2 : 0;
+    const neighborRows = arr.slice(0, Math.min(100, K)).map(t => this.rowObj(t.v));
+    this.weighted = {
+      pH: sumW ? wH / sumW : 0, pD: sumW ? wD / sumW : 0, pA: sumW ? wA / sumW : 0,
+      Neff, K, included, pool,
+      target: [tH, tD, tA],
+      cnt, range: { h: [hmin, hmax], d: [dmin, dmax], a: [amin, amax] },
+      neighborRows,
+    };
+    this.forceUpdate();
+  };
+
+  calcResult() {
+    const parse = (s) => { const v = parseFloat(s); return isFinite(v) && v > 1 ? v : null; };
+    const o = { h: parse(this.calc.h), d: parse(this.calc.d), a: parse(this.calc.a) };
+    const raw = { h: o.h ? 1 / o.h : null, d: o.d ? 1 / o.d : null, a: o.a ? 1 / o.a : null };
+    const sum = ['h', 'd', 'a'].reduce((s, k) => s + (raw[k] || 0), 0);
+    const allIn = o.h && o.d && o.a;
+    const norm = {};
+    ['h', 'd', 'a'].forEach(k => { norm[k] = allIn && sum ? raw[k] / sum : null; });
+    return { o, raw, sum, allIn, norm, margin: allIn ? (sum - 1) * 100 : null };
+  }
+
+  renderVals() {
+    if (!this.state.loaded) {
+      return { loaded: false, loading: this.state.loading, loadError: this.state.loadError };
+    }
+    const keys = ['h', 'd', 'a'];
+    const sliders = keys.map(key => {
+      const [mn, mx] = this.ranges[key];
+      const [lo, hi] = this.bounds[key];
+      const minPct = this.pct(key, mn), maxPct = this.pct(key, mx);
+      const hist = this.hist && this.hist[key];
+      let grayPath = '', colorPath = '';
+      if (hist) {
+        const pts = hist.pts, H = hist.H;
+        const area = (ps) => ps.length
+          ? `M${ps[0].x},${H} ` + ps.map(p => `L${p.x},${p.y}`).join(' ') + ` L${ps[ps.length - 1].x},${H} Z`
+          : '';
+        const yAt = (xq) => {
+          if (xq <= pts[0].x) return pts[0].y;
+          if (xq >= pts[pts.length - 1].x) return pts[pts.length - 1].y;
+          for (let i = 1; i < pts.length; i++) {
+            if (pts[i].x >= xq) {
+              const a = pts[i - 1], b = pts[i], t = (xq - a.x) / (b.x - a.x);
+              return +(a.y + (b.y - a.y) * t).toFixed(2);
+            }
+          }
+          return pts[pts.length - 1].y;
+        };
+        grayPath = area(pts);
+        const inside = pts.filter(p => p.x > minPct && p.x < maxPct);
+        const sel = [{ x: +minPct.toFixed(2), y: yAt(minPct) }, ...inside, { x: +maxPct.toFixed(2), y: yAt(maxPct) }];
+        colorPath = area(sel);
+      }
+      return {
+        grayPath, colorPath,
+        key, field: key, name: this.NAMES[key], color: this.COLORS[key],
+        minLabel: mn.toFixed(2), maxLabel: mx.toFixed(2),
+        loLabel: lo.toFixed(2), hiLabel: hi.toFixed(2),
+        minPct, maxPct, fillWidth: maxPct - minPct,
+        minKey: `${key}-min-${mn}`, maxKey: `${key}-max-${mx}`,
+        boundLo: lo, boundHi: hi,
+        coverPct: (this.cover && this.cover[key] != null ? this.cover[key] : 0).toFixed(1),
+        coverN: (this.coverN && this.coverN[key] != null ? this.coverN[key] : 0).toLocaleString(),
+        commitMin: (e) => this.applyInput(key, 'min', e.target.value),
+        commitMax: (e) => this.applyInput(key, 'max', e.target.value),
+        inputKeyDown: (e) => { if (e.key === 'Enter') e.target.blur(); },
+        onMinDown: (e) => this.startDrag(e, key, 'min'),
+        onMaxDown: (e) => this.startDrag(e, key, 'max'),
+        onTrackDown: (e) => this.trackDown(e, key),
+        setTrack: (el) => { if (el) this.tracks[key] = el; },
+      };
+    });
+
+    const c = this._counts || { H: 0, D: 0, A: 0 };
+    const total = this._total || 0;
+    const p = (n) => total ? ((n / total) * 100) : 0;
+    const stats = [
+      { name: '主胜 (H)', color: this.COLORS.h, count: c.H.toLocaleString(), pct: p(c.H).toFixed(1) },
+      { name: '平局 (D)', color: this.COLORS.d, count: c.D.toLocaleString(), pct: p(c.D).toFixed(1) },
+      { name: '客胜 (A)', color: this.COLORS.a, count: c.A.toLocaleString(), pct: p(c.A).toFixed(1) },
+    ];
+
+    const rows = this._rows || [];
+    const pageCount = this._pageCount || 1;
+    const curPage = (this.page || 0) + 1;
+    const from = total ? this.page * this.PAGE_SIZE + 1 : 0;
+    const to = Math.min(total, (this.page + 1) * this.PAGE_SIZE);
+    const tableNote = total
+      ? `${from}–${to} / 共 ${total.toLocaleString()} 场`
+      : `共 0 场`;
+
+    const buildPages = (cur, count) => {
+      const out = [];
+      if (count <= 7) { for (let i = 1; i <= count; i++) out.push(i); return out; }
+      out.push(1);
+      let s = Math.max(2, cur - 1), e = Math.min(count - 1, cur + 1);
+      if (cur <= 3) { s = 2; e = 4; }
+      if (cur >= count - 2) { s = count - 3; e = count - 1; }
+      if (s > 2) out.push('…');
+      for (let i = s; i <= e; i++) out.push(i);
+      if (e < count - 1) out.push('…');
+      out.push(count);
+      return out;
+    };
+    const pageBtnBase = 'min-width:34px;height:34px;padding:0 10px;border-radius:8px;font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;';
+    const pageItems = buildPages(curPage, pageCount).map((v, i) => {
+      if (v === '…') return { gap: true, notGap: false, key: 'gap' + i, label: '…' };
+      return {
+        gap: false, notGap: true, key: 'p' + v, label: '' + v, active: v === curPage,
+        onClick: () => this.goPage(v - 1),
+        style: v === curPage
+          ? pageBtnBase + 'background:#1b806a;border:1px solid #1b806a;color:#fff;'
+          : pageBtnBase + 'background:#ffffff;border:1px solid #e3ded3;color:#5d5750;',
+      };
+    });
+    const navBase = 'height:34px;padding:0 14px;border-radius:8px;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:600;display:inline-flex;align-items:center;';
+    const pagination = {
+      hasPages: pageCount > 1,
+      pageItems,
+      pageLabel: `第 ${curPage} / ${pageCount} 页`,
+      prev: () => this.goPage(this.page - 1),
+      next: () => this.goPage(this.page + 1),
+      prevStyle: navBase + (curPage > 1 ? 'background:#ffffff;border:1px solid #e3ded3;color:#5d5750;cursor:pointer;' : 'background:#f4f2ee;border:1px solid #ece8e0;color:#c2bcb0;cursor:not-allowed;'),
+      nextStyle: navBase + (curPage < pageCount ? 'background:#ffffff;border:1px solid #e3ded3;color:#5d5750;cursor:pointer;' : 'background:#f4f2ee;border:1px solid #ece8e0;color:#c2bcb0;cursor:not-allowed;'),
+    };
+
+    const base = 'display:inline-flex;align-items:center;gap:6px;font-family:\'Manrope\',sans-serif;font-size:12.5px;font-weight:600;padding:5px 11px;border-radius:8px;cursor:pointer;';
+    const chipFor = (l) => ({
+      name: l, count: (this.leagueCount[l] || 0).toLocaleString(),
+      toggle: () => this.toggleLeague(l),
+      chipStyle: this.selected[l]
+        ? base + 'background:rgba(27,128,106,.10);border:1px solid #1b806a;color:#15604f;'
+        : base + 'background:#faf9f6;border:1px solid #e3ded3;color:#a8a298;',
+      badgeStyle: this.selected[l]
+        ? 'font-family:\'IBM Plex Mono\',monospace;font-size:10.5px;color:#1b806a;'
+        : 'font-family:\'IBM Plex Mono\',monospace;font-size:10.5px;color:#c2bcb0;',
+    });
+    const leagueCats = (this.catGroups || []).map(g => {
+      const sel = g.leagues.filter(l => this.selected[l]).length;
+      const open = !!this.catOpen[g.name];
+      return {
+        name: g.name, open, total: g.leagues.length, sel,
+        allOn: sel === g.leagues.length,
+        chips: g.leagues.map(chipFor),
+        caret: open ? '▾' : '▸',
+        headerStyle: 'display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;background:' + (open ? '#faf9f6' : '#ffffff') + ';border:1px solid #ece8e0;border-radius:9px;cursor:pointer;text-align:left;',
+        badgeColor: sel > 0 ? '#1b806a' : '#c2bcb0',
+        toggleOpen: () => this.toggleCat(g.name),
+        selAll: (e) => { e.stopPropagation(); this.setCatLeagues(g, true); },
+        clrAll: (e) => { e.stopPropagation(); this.setCatLeagues(g, false); },
+      };
+    });
+    const selectedCount = this.LEAGUES.filter(l => this.selected[l]).length;
+
+    // odds calculator
+    const cr = this.calcResult();
+    const fmtPct = (x) => x == null ? '—' : (x * 100).toFixed(1) + '%';
+    const calc = {
+      h: this.calc.h, d: this.calc.d, a: this.calc.a,
+      setH: (e) => this.setCalc('h', e.target.value),
+      setD: (e) => this.setCalc('d', e.target.value),
+      setA: (e) => this.setCalc('a', e.target.value),
+      clear: this.clearCalc,
+      hasAny: !!(this.calc.h || this.calc.d || this.calc.a),
+      cells: [
+        { k: 'h', name: '主胜', color: this.COLORS.h, inputVal: this.calc.h, onInput: (e) => this.setCalc('h', e.target.value), be: fmtPct(cr.raw.h), mk: fmtPct(cr.norm.h), w: cr.norm.h != null ? cr.norm.h * 100 : 0 },
+        { k: 'd', name: '平局', color: this.COLORS.d, inputVal: this.calc.d, onInput: (e) => this.setCalc('d', e.target.value), be: fmtPct(cr.raw.d), mk: fmtPct(cr.norm.d), w: cr.norm.d != null ? cr.norm.d * 100 : 0 },
+        { k: 'a', name: '客胜', color: this.COLORS.a, inputVal: this.calc.a, onInput: (e) => this.setCalc('a', e.target.value), be: fmtPct(cr.raw.a), mk: fmtPct(cr.norm.a), w: cr.norm.a != null ? cr.norm.a * 100 : 0 },
+      ],
+      sumLabel: cr.sum > 0 ? (cr.sum * 100).toFixed(1) + '%' : '—',
+      marginLabel: cr.margin != null ? cr.margin.toFixed(1) + '%' : '—',
+      showMarket: cr.allIn,
+    };
+
+    // weighted win rate
+    const evCell = (p, odds) => {
+      if (p == null || !odds) return { ev: '—', evColor: '#b3ada3', evPos: false };
+      const ev = p * odds - 1;
+      return {
+        ev: (ev >= 0 ? '+' : '') + (ev * 100).toFixed(1) + '%',
+        evColor: ev > 0 ? this.POS : (ev < 0 ? this.NEG : '#79736a'),
+        evPos: ev > 0,
+      };
+    };
+    const w = this.weighted;
+    const canCompute = cr.allIn && parseInt(this.neighbors, 10) >= 2;
+    const neffOk = w && !w.error && w.Neff >= 300 && w.Neff <= 500;
+    const weighted = {
+      canCompute,
+      neighbors: this.neighbors,
+      setNeighbors: (e) => this.setNeighbors(e.target.value),
+      onCompute: this.computeWeighted,
+      btnStyle: canCompute
+        ? 'background:#1b806a;border:1px solid #1b806a;color:#fff;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:8px;cursor:pointer;'
+        : 'background:#f7f5f0;border:1px solid #e7e2d8;color:#c2bcb0;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:8px;cursor:not-allowed;',
+      hasResult: !!w,
+      error: w && w.error,
+      rows: w && !w.error ? [
+        { name: '主胜', color: this.COLORS.h, pct: (w.pH * 100).toFixed(1), w: w.pH * 100, n: (w.cnt.H || 0), nPct: w.K ? Math.round((w.cnt.H || 0) / w.K * 100) : 0, ...evCell(w.pH, cr.o.h) },
+        { name: '平局', color: this.COLORS.d, pct: (w.pD * 100).toFixed(1), w: w.pD * 100, n: (w.cnt.D || 0), nPct: w.K ? Math.round((w.cnt.D || 0) / w.K * 100) : 0, ...evCell(w.pD, cr.o.d) },
+        { name: '客胜', color: this.COLORS.a, pct: (w.pA * 100).toFixed(1), w: w.pA * 100, n: (w.cnt.A || 0), nPct: w.K ? Math.round((w.cnt.A || 0) / w.K * 100) : 0, ...evCell(w.pA, cr.o.a) },
+      ] : [],
+      neff: w && !w.error ? w.Neff.toFixed(0) : '—',
+      neffColor: neffOk ? this.POS : (w && !w.error ? '#b4690e' : '#211f1c'),
+      included: w && !w.error ? w.included.toLocaleString() : '—',
+      pool: w && !w.error ? w.pool.toLocaleString() : '—',
+      k: w && !w.error ? w.K.toLocaleString() : '—',
+      advice: w && !w.error
+        ? (w.Neff < 300 ? '有效样本偏低，建议增大近邻数量到 1000 或更多。'
+          : (w.Neff > 500 ? '有效样本偏高，可适当缩小近邻数量。'
+            : '有效样本量适中（300–500），结果较可靠。'))
+        : '',
+      neighborRows: w && !w.error ? (w.neighborRows || []) : [],
+      neighborCount: w && !w.error && w.neighborRows ? w.neighborRows.length : 0,
+    };
+
+    // nearest-neighbour odds range over the K nearest used above
+    if (w && !w.error && w.cnt) {
+      const fr = (x) => x.toFixed(2);
+      weighted.rangeText = `主胜 ${fr(w.range.h[0])}–${fr(w.range.h[1])}　/　平局 ${fr(w.range.d[0])}–${fr(w.range.d[1])}　/　客胜 ${fr(w.range.a[0])}–${fr(w.range.a[1])}`;
+      weighted.hasRange = true;
+    }
+
+    // ===== ML module render =====
+    const mlParse = (s) => { const v = parseFloat(s); return isFinite(v) && v > 1 ? v : null; };
+    const mo = { h: mlParse(this.calc.h), d: mlParse(this.calc.d), a: mlParse(this.calc.a) };
+    const mlAllIn = !!(mo.h && mo.d && mo.a);
+    let modelRows = [];
+    if (mlAllIn) {
+      const rr = [1 / mo.h, 1 / mo.d, 1 / mo.a];
+      const ss = rr[0] + rr[1] + rr[2];
+      const market = [rr[0] / ss, rr[1] / ss, rr[2] / ss];
+      const probsByKey = {};
+      ['market', 'lr', 'rf', 'lgb', 'cat'].forEach(k => {
+        if (k === 'market') { probsByKey[k] = market; return; }
+        const off = this.ML_OFF[k];
+        let pp = [market[0] + off[0], market[1] + off[1], market[2] + off[2]].map(x => Math.max(0.003, x));
+        const s2 = pp[0] + pp[1] + pp[2];
+        probsByKey[k] = pp.map(x => x / s2);
+      });
+      const ens = [0, 0, 0];
+      ['market', 'lr', 'cat', 'rf'].forEach(k => { for (let i = 0; i < 3; i++) ens[i] += probsByKey[k][i] / 4; });
+      probsByKey['ensemble'] = ens;
+
+      const oddsArr = [mo.h, mo.d, mo.a];
+      const outNames = ['主胜', '平局', '客胜'];
+      const outColors = [this.COLORS.h, this.COLORS.d, this.COLORS.a];
+      const outBg = ['rgba(27,128,106,.12)', 'rgba(180,105,14,.12)', 'rgba(47,95,208,.12)'];
+
+      // gather per-model raw values
+      const recs = this.ML_ORDER.map(k => {
+        const meta = this.MODEL_META[k];
+        const p = probsByKey[k];
+        const ev = p.map((pi, i) => pi * oddsArr[i] - 1);
+        return { k, meta, p, ev, ll: meta.ll, br: meta.br };
+      });
+      // best index per column: max for prob & EV, min for LogLoss & Brier
+      const argmax = (f) => { let bi = 0, bv = -Infinity; recs.forEach((r, i) => { const v = f(r); if (v > bv) { bv = v; bi = i; } }); return bi; };
+      const argmin = (f) => { let bi = 0, bv = Infinity; recs.forEach((r, i) => { const v = f(r); if (v < bv) { bv = v; bi = i; } }); return bi; };
+      const best = {
+        ph: argmax(r => r.p[0]), pd: argmax(r => r.p[1]), pa: argmax(r => r.p[2]),
+        evh: argmax(r => r.ev[0]), evd: argmax(r => r.ev[1]), eva: argmax(r => r.ev[2]),
+        ll: argmin(r => r.ll), br: argmin(r => r.br),
+      };
+      const cell = (txt, isBest) => ({ txt, color: isBest ? '#1b806a' : '#5d5750', weight: isBest ? '700' : '500' });
+      const evTxt = (e) => (e >= 0 ? '+' : '') + (e * 100).toFixed(1) + '%';
+      modelRows = recs.map((r, i) => {
+        let bestI = 0, bestEv = -Infinity;
+        r.ev.forEach((e, j) => { if (e > bestEv) { bestEv = e; bestI = j; } });
+        const bet = bestEv > 0;
+        return {
+          key: r.k, name: r.meta.name, color: r.meta.color,
+          rowStyle: r.k === 'ensemble'
+            ? 'border-top:1px solid #e3ded3;background:#faf7f2;'
+            : 'border-top:1px solid #f1ede4;',
+          ll: cell(r.ll.toFixed(5), i === best.ll),
+          br: cell(r.br.toFixed(5), i === best.br),
+          ph: cell((r.p[0] * 100).toFixed(1) + '%', i === best.ph),
+          pd: cell((r.p[1] * 100).toFixed(1) + '%', i === best.pd),
+          pa: cell((r.p[2] * 100).toFixed(1) + '%', i === best.pa),
+          evh: cell(evTxt(r.ev[0]), i === best.evh),
+          evd: cell(evTxt(r.ev[1]), i === best.evd),
+          eva: cell(evTxt(r.ev[2]), i === best.eva),
+          sug: bet ? outNames[bestI] : '不下注',
+          sugColor: bet ? outColors[bestI] : '#a8a298',
+          sugBg: bet ? outBg[bestI] : 'rgba(168,162,152,.14)',
+        };
+      });
+    }
+    const mlLegend = this.ML_ORDER.map(k => ({ name: this.MODEL_META[k].name, color: this.MODEL_META[k].color }));
+
+    const ml = {
+      hasModels: mlAllIn, modelRows, legend: mlLegend,
+      canRun: mlAllIn,
+      show: mlAllIn && this.mlRan,
+      runML: this.runML,
+      btnStyle: mlAllIn
+        ? 'background:#1b806a;border:1px solid #1b806a;color:#fff;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:8px;cursor:pointer;'
+        : 'background:#f7f5f0;border:1px solid #e7e2d8;color:#c2bcb0;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:600;letter-spacing:.02em;padding:9px 18px;border-radius:8px;cursor:not-allowed;',
+    };
+
+    return {
+      loaded: true, loading: false, loadError: null,
+      totalValid: this.totalValid, dateNote: this.dateNote,
+      sliders, stats, reset: this.reset, calc, weighted, ml,
+      tabWeighted: this.tab === 'weighted',
+      tabML: this.tab === 'ml',
+      setTabWeighted: () => this.setTab('weighted'),
+      setTabML: () => this.setTab('ml'),
+      tabWeightedStyle: this.tabStyle(this.tab === 'weighted'),
+      tabMLStyle: this.tabStyle(this.tab === 'ml'),
+      leagueCats, selectedCount, leagueTotal: this.LEAGUES.length,
+      leaguesOpen: this.leaguesOpen,
+      toggleLeaguesPanel: this.toggleLeaguesPanel,
+      exploreOpen: this.exploreOpen,
+      toggleExplore: this.toggleExplore,
+      exploreCaret: this.exploreOpen ? '收起 ▾' : '展开 ▸',
+      leaguesCaret: this.leaguesOpen ? '收起 ▾' : '展开 ▸',
+      selectAll: () => this.setAllLeagues(true),
+      clearAll: () => this.setAllLeagues(false),
+      matched: total.toLocaleString(),
+      hPct: p(c.H), dPct: p(c.D), aPct: p(c.A),
+      rows, tableNote, pagination,
+    };
+  }
+}
+</script>
+</body>
+</html>
