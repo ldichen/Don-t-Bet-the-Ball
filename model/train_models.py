@@ -400,10 +400,40 @@ def predict_match(odds_h, odds_d, odds_a, league="英超",
               f" | {ev[0]:>+7.1%} {ev[1]:>+7.1%} {ev[2]:>+7.1%} | {suggestion}")
 
 
-# ── 10. 主入口 ──────────────────────────────────────────────
+# ── 10. 模型导出与加载 ────────────────────────────────────────
+
+import joblib
+
+EXPORT_DIR = Path(__file__).parent / "artifacts"
+
+
+def export_models(results, trained, scaler, feature_cols, league_encoder):
+    """训练完成后导出所有模型到 model/artifacts/ 目录。"""
+    EXPORT_DIR.mkdir(exist_ok=True)
+    joblib.dump(trained, EXPORT_DIR / "trained_models.joblib")
+    joblib.dump(scaler, EXPORT_DIR / "scaler.joblib")
+    joblib.dump(feature_cols, EXPORT_DIR / "feature_cols.joblib")
+    joblib.dump(league_encoder, EXPORT_DIR / "league_encoder.joblib")
+    joblib.dump({k: {"val_logloss": v.get("val_logloss"), "test_logloss": v["test_logloss"], "test_brier": v["test_brier"]} for k, v in results.items()}, EXPORT_DIR / "results.joblib")
+    print(f"\n模型已导出到: {EXPORT_DIR}")
+
+
+def load_exported_models():
+    """从 model/artifacts/ 加载已训练的模型。"""
+    return (
+        joblib.load(EXPORT_DIR / "results.joblib"),
+        joblib.load(EXPORT_DIR / "trained_models.joblib"),
+        joblib.load(EXPORT_DIR / "scaler.joblib"),
+        joblib.load(EXPORT_DIR / "feature_cols.joblib"),
+        joblib.load(EXPORT_DIR / "league_encoder.joblib"),
+    )
+
+
+# ── 11. 主入口 ──────────────────────────────────────────────
 
 if __name__ == "__main__":
     results, trained, scaler, feature_cols, league_encoder, best_name = train_and_evaluate()
+    export_models(results, trained, scaler, feature_cols, league_encoder)
 
     print("\n\n" + "=" * 60)
     print("示例预测")

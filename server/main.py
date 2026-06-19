@@ -1,7 +1,7 @@
 """ML prediction API server.
 
-Start with:  uvicorn main:app --reload
-from the server/ directory.
+Loads pre-trained model artifacts from model/artifacts/.
+Train locally with: python model/train_models.py
 """
 
 import sys
@@ -9,12 +9,12 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import joblib
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-MODEL_DIR = Path(__file__).parent.parent / "model"
-sys.path.insert(0, str(MODEL_DIR))
+ARTIFACTS_DIR = Path(__file__).parent.parent / "model" / "artifacts"
 
 app = FastAPI()
 app.add_middleware(
@@ -51,22 +51,18 @@ NAME_MAP = {
     "集成模型": "ensemble",
 }
 
-DISPLAY_MAP = {v: k for k, v in NAME_MAP.items()}
-
 
 @app.on_event("startup")
 def load_models():
-    print("Loading models... (this may take 1-2 minutes)")
+    print(f"Loading model artifacts from {ARTIFACTS_DIR} ...")
     try:
-        from train_models import train_and_evaluate
-        results, trained, scaler, feature_cols, league_encoder, best_name = train_and_evaluate()
-        _state["results"] = results
-        _state["trained"] = trained
-        _state["scaler"] = scaler
-        _state["feature_cols"] = feature_cols
-        _state["league_encoder"] = league_encoder
+        _state["results"] = joblib.load(ARTIFACTS_DIR / "results.joblib")
+        _state["trained"] = joblib.load(ARTIFACTS_DIR / "trained_models.joblib")
+        _state["scaler"] = joblib.load(ARTIFACTS_DIR / "scaler.joblib")
+        _state["feature_cols"] = joblib.load(ARTIFACTS_DIR / "feature_cols.joblib")
+        _state["league_encoder"] = joblib.load(ARTIFACTS_DIR / "league_encoder.joblib")
         _state["ready"] = True
-        print(f"Models loaded successfully. Best model: {best_name}")
+        print("Models loaded successfully.")
     except Exception as e:
         print(f"Failed to load models: {e}")
         import traceback
@@ -135,10 +131,10 @@ def _predict_single(h, d, a, league):
     if "集成模型" in results:
         top_names = []
         ensemble_candidates = {k: v for k, v in results.items() if k != "KNN距离加权"}
-        top_models = sorted(ensemble_candidates.items(), key=lambda x: x[1]["val_logloss"] or 999)
+        top_models = sorted(ensemble_candidates.items(), key=lambda x: x[1].get("val_logloss") or 999)
         top_names = [n for n, _ in top_models[:4]]
 
-        weights_raw = np.array([1.0 / results[n]["val_logloss"] for n in top_names if results[n]["val_logloss"]])
+        weights_raw = np.array([1.0 / results[n]["val_logloss"] for n in top_names if results[n].get("val_logloss")])
         weights = weights_raw / weights_raw.sum()
 
         ens_probs = np.zeros(3)

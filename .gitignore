@@ -30,5 +30,11 @@ Thumbs.db
 .idea/
 *.sw?
 
+# Private notes
+NOTES.md
+
+# Trained model artifacts
+model/artifacts/
+
 # Claude Code
 .claude/
