@@ -3,6 +3,7 @@ import Header from './components/Header';
 import LeagueSelector from './components/LeagueSelector';
 import OddsCalculator from './components/OddsCalculator';
 import OddsExplorer from './components/OddsExplorer';
+import CoffeeHover from './components/CoffeeHover';
 import Footer from './components/Footer';
 
 export default function App() {
@@ -58,6 +59,7 @@ export default function App() {
               updateRanges={updateRanges} resetRanges={resetRanges} goPage={goPage}
             />
 
+            <CoffeeHover />
             <Footer />
           </>
         )}

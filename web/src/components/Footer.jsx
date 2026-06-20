@@ -6,7 +6,7 @@ const linkStyle = {
 export default function Footer() {
   return (
     <footer style={{
-      marginTop: 40, paddingTop: 22, borderTop: '1px solid #e3ded3',
+      paddingTop: 22, borderTop: '1px solid #e3ded3',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       gap: 20, flexWrap: 'wrap',
     }}>

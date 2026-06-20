@@ -109,7 +109,9 @@ npm run build
 
 如果这个项目对你有帮助，欢迎请我喝杯咖啡 :)
 
-<a href="assets/wechat-pay.jpg"><img src="assets/wechat-pay.jpg" alt="微信赞赏" width="200"></a>
+| 微信支付 | Buy Me a Coffee |
+|:---:|:---:|
+| <img src="assets/wechat-pay.jpg" alt="微信支付" width="180"> | <img src="assets/bmc_qr.png" alt="Buy Me a Coffee" width="180"> |
 
 ## License
 

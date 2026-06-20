@@ -109,7 +109,9 @@ npm run build
 
 If this project helped you, consider buying me a coffee :)
 
-<a href="assets/wechat-pay.jpg"><img src="assets/wechat-pay.jpg" alt="WeChat Pay" width="200"></a>
+| WeChat Pay | Buy Me a Coffee |
+|:---:|:---:|
+| <img src="assets/wechat-pay.jpg" alt="WeChat Pay" width="180"> | <img src="assets/bmc_qr.png" alt="Buy Me a Coffee" width="180"> |
 
 ## License
 
