@@ -4,7 +4,7 @@ import { KEYS } from '../utils/calc';
 import { computeHistogram } from '../utils/histogram';
 
 const VALID = `h IS NOT NULL AND win_flag IN ('H','D','A') AND sections_no999 IS NOT NULL AND sections_no999 != '无效场次'`;
-const DB_FILE = '/lottery.db';
+const DB_FILE = `/lottery.db?v=${__APP_VERSION__}`;
 const PAGE_SIZE = 50;
 
 export { VALID, PAGE_SIZE };
