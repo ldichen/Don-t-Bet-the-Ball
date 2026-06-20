@@ -3,7 +3,7 @@ import { resultMeta, COLORS } from '../utils/calc';
 export default function MatchTable({ rows, maxHeight = 560 }) {
   return (
     <div style={{ border: '1px solid #ece8e0', borderRadius: 12, overflow: 'hidden' }}>
-      <div style={{ overflowX: 'auto', maxHeight, overflowY: 'auto' }}>
+      <div style={{ overflowX: 'auto', maxHeight, overflowY: 'auto', background: '#faf9f6' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, whiteSpace: 'nowrap' }}>
           <thead>
             <tr style={{ position: 'sticky', top: 0, background: '#faf9f6', zIndex: 1 }}>
@@ -17,7 +17,7 @@ export default function MatchTable({ rows, maxHeight = 560 }) {
               <th style={{ textAlign: 'center', padding: '10px 14px', color: '#a8a298', fontWeight: 600, borderBottom: '1px solid #ece8e0' }}>结果</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{ background: '#fff' }}>
             {rows.map((v, i) => {
               const row = Array.isArray(v) ? v : null;
               if (!row) return null;
