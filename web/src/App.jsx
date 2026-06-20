@@ -1,10 +1,13 @@
+import { useEffect } from 'react';
 import { useDatabase } from './hooks/useDatabase';
+import { useOverlayScrollbars } from './hooks/useOverlayScrollbars';
 import Header from './components/Header';
 import LeagueSelector from './components/LeagueSelector';
 import OddsCalculator from './components/OddsCalculator';
 import OddsExplorer from './components/OddsExplorer';
 import CoffeeHover from './components/CoffeeHover';
 import Footer from './components/Footer';
+import './responsive.css';
 
 export default function App() {
   const {
@@ -13,8 +16,11 @@ export default function App() {
     updateSelection, updateRanges, goPage, resetRanges, VALID,
   } = useDatabase();
 
+  const scanScrollbars = useOverlayScrollbars();
+  useEffect(() => { scanScrollbars(); });
+
   return (
-    <div style={{
+    <div data-r="page" style={{
       minHeight: '100vh', background: '#f4f2ee', color: '#211f1c',
       fontFamily: "'Manrope',system-ui,sans-serif", padding: '26px 28px 44px',
     }}>

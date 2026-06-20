@@ -1,0 +1,29 @@
+@media (max-width: 640px) {
+  [data-r="page"] { padding: 14px 11px 30px !important; }
+  [data-r="page"] section { padding-left: 14px !important; padding-right: 14px !important; }
+  [data-r="header"] { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+  [data-r="header"] h1 { font-size: 24px !important; }
+  [data-r="header"] [data-r="stat"] { text-align: left !important; }
+  [data-r="lghead"], [data-r="exhead"] { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+  [data-r="exhead"] > div:first-child { flex-wrap: wrap !important; }
+  [data-r="lghead"] [data-r="lgbtns"], [data-r="exhead"] [data-r="exbtns"] { flex-wrap: wrap !important; }
+  [data-r="grid3"] { gap: 8px !important; }
+  [data-r="grid3"] > div { padding-left: 13px !important; padding-right: 13px !important; }
+  [data-r="snum"] { width: 60px !important; }
+  [data-r="slabel"] { flex-wrap: wrap !important; row-gap: 8px !important; }
+  [data-r="statnum"] { font-size: 22px !important; }
+  [data-r="wrow"] { flex-wrap: wrap !important; row-gap: 9px !important; column-gap: 12px !important; }
+  [data-r="wrow-bar"] { min-width: 90px !important; }
+  [data-r="wrow-ev"] { width: auto !important; flex: 1 0 100% !important; text-align: left !important; padding-left: 50px !important; display: flex !important; align-items: baseline !important; gap: 8px !important; }
+  [data-r="wrow-ev"] > div:first-child { margin-bottom: 0 !important; }
+  [data-r="qr"] { gap: 10px !important; padding: 12px !important; }
+  [data-r="qr"] img { width: 104px !important; height: 104px !important; }
+  [data-r="pager"] { padding: 11px 13px !important; gap: 9px !important; }
+  [data-r="pagelist"] { display: none !important; }
+  [data-r="pagelist-m"] { display: flex !important; }
+  [data-r="pagenums"] { width: 100% !important; justify-content: center !important; gap: 7px !important; flex-wrap: nowrap !important; }
+  [data-r="pagenums"] > button { height: 30px !important; padding: 0 9px !important; font-size: 12px !important; }
+  [data-r="navtext"] { display: none !important; }
+  [data-r="pagelist-m"] button { min-width: 30px !important; height: 30px !important; padding: 0 7px !important; font-size: 12px !important; }
+  [data-r="coffeelink"] { font-size: 20px !important; }
+}

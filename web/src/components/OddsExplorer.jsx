@@ -111,7 +111,7 @@ export default function OddsExplorer({ bounds, ranges, histograms, cover, queryR
       background: '#ffffff', border: '1px solid #e7e3da', borderRadius: 16,
       padding: '18px 24px 20px', marginBottom: 16, boxShadow: '0 1px 2px rgba(40,34,20,.03)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div data-r="exhead" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.1em', color: '#34312D', textTransform: 'uppercase' }}>输球赔率探索</div>
           <span style={{ fontSize: 11, color: '#b3ada3' }}>赔率区间 · 结果分布 · 比赛明细，实时联动</span>
@@ -149,13 +149,14 @@ export default function OddsExplorer({ bounds, ranges, histograms, cover, queryR
 
                 return (
                   <div key={key}>
-                    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 7 }}>
+                    <div data-r="slabel" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 7 }}>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                         <span style={{ width: 9, height: 9, borderRadius: '50%', background: COLORS[key], display: 'inline-block' }} />
                         <span style={{ fontSize: 15, fontWeight: 700 }}>{NAMES[key]}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}>
                         <input
+                          data-r="snum"
                           type="number" step="0.01" min={lo} max={hi}
                           key={`${key}-min-${mn}`}
                           defaultValue={mn.toFixed(2)}
@@ -169,6 +170,7 @@ export default function OddsExplorer({ bounds, ranges, histograms, cover, queryR
                         />
                         <span style={{ color: '#b3ada3' }}>—</span>
                         <input
+                          data-r="snum"
                           type="number" step="0.01" min={lo} max={hi}
                           key={`${key}-max-${mx}`}
                           defaultValue={mx.toFixed(2)}
@@ -245,7 +247,7 @@ export default function OddsExplorer({ bounds, ranges, histograms, cover, queryR
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 14 }}>
+            <div data-r="grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 14 }}>
               {stats.map(st => (
                 <div key={st.name} style={{
                   background: '#faf9f6', border: '1px solid #ece8e0', borderRadius: 12,
@@ -253,7 +255,7 @@ export default function OddsExplorer({ bounds, ranges, histograms, cover, queryR
                 }}>
                   <div style={{ fontSize: 13, color: '#79736a', fontWeight: 600, marginBottom: 6 }}>{st.name}</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                    <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 30, fontWeight: 600, color: st.color, lineHeight: 1 }}>{st.pct}</span>
+                    <span data-r="statnum" style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 30, fontWeight: 600, color: st.color, lineHeight: 1 }}>{st.pct}</span>
                     <span style={{ fontSize: 16, color: '#b3ada3' }}>%</span>
                   </div>
                   <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: '#b3ada3', marginTop: 6 }}>{st.count.toLocaleString()} 场</div>

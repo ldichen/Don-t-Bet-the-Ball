@@ -70,7 +70,7 @@ export default function WeightedWinRate({ db, cr, neighbors, setNeighbors, selec
                   background: '#faf9f6', border: '1px solid #ece8e0', borderRadius: 12,
                   borderLeft: `3px solid ${wr.color}`, padding: '10px 16px',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                  <div data-r="wrow" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: '#211f1c', width: 34, flex: 'none' }}>{wr.name}</span>
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 3, width: 74, flex: 'none' }}>
                       <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 25, fontWeight: 600, color: wr.color, lineHeight: 1 }}>
@@ -78,10 +78,10 @@ export default function WeightedWinRate({ db, cr, neighbors, setNeighbors, selec
                       </span>
                       <span style={{ fontSize: 13, color: '#b3ada3' }}>%</span>
                     </div>
-                    <div style={{ flex: 1, minWidth: 40, height: 6, borderRadius: 3, background: '#ece8e0', overflow: 'hidden' }}>
+                    <div data-r="wrow-bar" style={{ flex: 1, minWidth: 40, height: 6, borderRadius: 3, background: '#ece8e0', overflow: 'hidden' }}>
                       <div style={{ height: '100%', borderRadius: 3, background: wr.color, width: `${wr.p * 100}%` }} />
                     </div>
-                    <div style={{ textAlign: 'right', width: 96, flex: 'none' }}>
+                    <div data-r="wrow-ev" style={{ textAlign: 'right', width: 96, flex: 'none' }}>
                       <div style={{ fontSize: 10, color: '#b3ada3', marginBottom: 2 }}>理论回报率</div>
                       <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 15, fontWeight: 600, color: evColor }}>
                         {fmtEv(ev)}

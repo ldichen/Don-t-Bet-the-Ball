@@ -48,7 +48,7 @@ export default function OddsCalculator({ db, selected, allLeagues, VALID }) {
         （三者归一化到 100%）。
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+      <div data-r="grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
         {cells.map(c => (
           <div key={c.k} style={{
             background: '#faf9f6', border: '1px solid #ece8e0', borderRadius: 14,
@@ -68,11 +68,11 @@ export default function OddsCalculator({ db, selected, allLeagues, VALID }) {
                 textAlign: 'center', padding: '9px 4px', marginBottom: 11, outline: 'none',
               }}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <span style={{ fontSize: 11.5, color: '#b3ada3' }}>盈亏平衡</span>
               <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 15, fontWeight: 600, color: '#5d5750' }}>{c.be}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 11.5, color: '#b3ada3' }}>去水市场</span>
               <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 15, fontWeight: 600, color: c.color }}>{c.mk}</span>
             </div>
@@ -83,7 +83,7 @@ export default function OddsCalculator({ db, selected, allLeagues, VALID }) {
         ))}
       </div>
 
-      <div style={{ display: 'flex', gap: 28, marginTop: 14, paddingTop: 14, borderTop: '1px solid #ece8e0', fontSize: 13 }}>
+      <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', marginTop: 14, paddingTop: 14, borderTop: '1px solid #ece8e0', fontSize: 13 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
           <span style={{ color: '#b3ada3' }}>隐含概率合计</span>
           <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 15, fontWeight: 600, color: '#211f1c' }}>

@@ -15,24 +15,56 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; background: #f4f2ee; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-thumb { background: #ddd6c9; border-radius: 6px; }
-  ::-webkit-scrollbar-thumb:hover { background: #cfc7b6; }
-  ::-webkit-scrollbar-track { background: transparent; }
+  /* No custom scrollbar styling: this lets the OS draw native overlay scrollbars
+     that float ON TOP of content and auto-hide when idle (macOS/iOS). Any explicit
+     ::-webkit-scrollbar width forces classic always-reserved bars, which we do NOT want. */
+  @media (max-width: 640px) {
+    [data-r="page"] { padding: 14px 11px 30px !important; }
+    [data-r="page"] section { padding-left: 14px !important; padding-right: 14px !important; }
+    [data-r="header"] { flex-direction: column !important; align-items: flex-start !important; gap: 10px !important; }
+    [data-r="header"] h1 { font-size: 24px !important; }
+    [data-r="header"] [data-r="stat"] { text-align: left !important; }
+    /* league + explore section headers stack so action buttons don't get squeezed */
+    [data-r="lghead"], [data-r="exhead"] { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
+    [data-r="exhead"] > div:first-child { flex-wrap: wrap !important; }
+    [data-r="lghead"] [data-r="lgbtns"], [data-r="exhead"] [data-r="exbtns"] { flex-wrap: wrap !important; }
+    [data-r="grid3"] { gap: 8px !important; }
+    [data-r="grid3"] > div { padding-left: 13px !important; padding-right: 13px !important; }
+    [data-r="snum"] { width: 60px !important; }
+    [data-r="slabel"] { flex-wrap: wrap !important; row-gap: 8px !important; }
+    /* big distribution numbers shrink so 3 columns fit */
+    [data-r="statnum"] { font-size: 22px !important; }
+    /* weighted-result rows: let the EV block wrap onto its own line */
+    [data-r="wrow"] { flex-wrap: wrap !important; row-gap: 9px !important; column-gap: 12px !important; }
+    [data-r="wrow-bar"] { min-width: 90px !important; }
+    [data-r="wrow-ev"] { width: auto !important; flex: 1 0 100% !important; text-align: left !important; padding-left: 50px !important; display: flex !important; align-items: baseline !important; gap: 8px !important; }
+    [data-r="wrow-ev"] > div:first-child { margin-bottom: 0 !important; }
+    [data-r="qr"] { gap: 10px !important; padding: 12px !important; }
+    [data-r="qr"] img { width: 104px !important; height: 104px !important; }
+    /* phone pagination: condensed numbered pages (first / second / current / last) + smaller prev-next */
+    [data-r="pager"] { padding: 11px 13px !important; gap: 9px !important; }
+    [data-r="pagelist"] { display: none !important; }
+    [data-r="pagelist-m"] { display: flex !important; }
+    [data-r="pagenums"] { width: 100% !important; justify-content: center !important; gap: 7px !important; flex-wrap: nowrap !important; }
+    [data-r="pagenums"] > button { height: 30px !important; padding: 0 9px !important; font-size: 12px !important; }
+    [data-r="navtext"] { display: none !important; }
+    [data-r="pagelist-m"] button { min-width: 30px !important; height: 30px !important; padding: 0 7px !important; font-size: 12px !important; }
+    [data-r="coffeelink"] { font-size: 20px !important; }
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
 </helmet>
 
-<div style="min-height:100vh;background:#f4f2ee;color:#211f1c;font-family:'Manrope',system-ui,sans-serif;padding:26px 28px 44px;">
+<div data-r="page" style="min-height:100vh;background:#f4f2ee;color:#211f1c;font-family:'Manrope',system-ui,sans-serif;padding:26px 28px 44px;">
   <div style="max-width:1180px;margin:0 auto;">
 
-    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:16px;border-bottom:1px solid #e3ded3;margin-bottom:18px;">
+    <header data-r="header" style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding-bottom:16px;border-bottom:1px solid #e3ded3;margin-bottom:18px;">
       <div>
         <div style="font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#a8a298;font-weight:700;margin-bottom:7px;">竞彩 · 赌球劝退器</div>
         <h1 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1.05;">收手吧，阿祖！</h1>
         <p style="margin:9px 0 0;color:#79736a;font-size:14px;max-width:620px;line-height:1.5;">收手吧阿祖，你不记得你“3000 万，德国赢”了吗？干不赢大老庄的！</p>
       </div>
-      <div style="text-align:right;font-family:'IBM Plex Mono',monospace;color:#a8a298;font-size:12px;line-height:1.8;white-space:nowrap;">
+      <div data-r="stat" style="text-align:right;font-family:'IBM Plex Mono',monospace;color:#a8a298;font-size:12px;line-height:1.8;white-space:nowrap;">
         <div>{{ dateNote }}</div>
         <div>有效样本 <span style="color:#211f1c;font-weight:600;">{{ totalValid }}</span> 场</div>
       </div>
@@ -53,12 +85,12 @@
 
       <!-- LEAGUES -->
       <section style="background:#ffffff;border:1px solid #e7e3da;border-radius:16px;padding:14px 22px;margin-bottom:16px;box-shadow:0 1px 2px rgba(40,34,20,.03);">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div data-r="lghead" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
           <div style="display:flex;align-items:baseline;gap:10px;">
             <div style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #34312d; text-transform: uppercase">联赛 / 赛事</div>
             <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;">已选 {{ selectedCount }} / {{ leagueTotal }}</span>
           </div>
-          <div style="display:flex;gap:8px;">
+          <div data-r="lgbtns" style="display:flex;gap:8px;">
             <button onClick="{{ selectAll }}" style="background:#f4f2ee;border:1px solid #e3ded3;color:#5d5750;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;" style-hover="border-color:#1b806a;color:#1b806a;">全选</button>
             <button onClick="{{ clearAll }}" style="background:#f4f2ee;border:1px solid #e3ded3;color:#5d5750;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;" style-hover="border-color:#1b806a;color:#1b806a;">清空</button>
             <button onClick="{{ toggleLeaguesPanel }}" style="background:#1b806a;border:1px solid #1b806a;color:#fff;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;padding:6px 13px;border-radius:8px;cursor:pointer;">{{ leaguesCaret }}</button>
@@ -97,7 +129,7 @@
         </div>
         <p style="margin:0 0 14px;color:#b3ada3;font-size:13px;line-height:1.5;">输入一场比赛的胜/平/负赔率，计算各项的<span style="color:#79736a;font-weight:600;">盈亏平衡概率</span>（1 ÷ 赔率）与<span style="color:#79736a;font-weight:600;">去水后市场概率</span>（三者归一化到 100%）。</p>
 
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div data-r="grid3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
           <sc-for list="{{ calc.cells }}" as="c" hint-placeholder-count="3">
             <div style="background:#faf9f6;border:1px solid #ece8e0;border-radius:14px;padding:14px 16px 13px;border-top:3px solid {{ c.color }};">
               <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px;">
@@ -105,11 +137,11 @@
                 <span style="font-size:14px;font-weight:700;color:#211f1c;">{{ c.name }}</span>
               </div>
               <input type="number" step="0.01" placeholder="赔率" value="{{ c.inputVal }}" onInput="{{ c.onInput }}" style="width:100%;background:#ffffff;border:1px solid #e3ded3;border-radius:9px;color:{{ c.color }};font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;text-align:center;padding:9px 4px;margin-bottom:11px;" style-focus="border-color:{{ c.color }};outline:none;">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
                 <span style="font-size:11.5px;color:#b3ada3;">盈亏平衡</span>
                 <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#5d5750;">{{ c.be }}</span>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
                 <span style="font-size:11.5px;color:#b3ada3;">去水市场</span>
                 <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:{{ c.color }};">{{ c.mk }}</span>
               </div>
@@ -120,7 +152,7 @@
           </sc-for>
         </div>
 
-        <div style="display:flex;gap:28px;margin-top:14px;padding-top:14px;border-top:1px solid #ece8e0;font-size:13px;">
+        <div style="display:flex;gap:28px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #ece8e0;font-size:13px;">
           <div style="display:flex;align-items:baseline;gap:8px;">
             <span style="color:#b3ada3;">隐含概率合计</span>
             <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#211f1c;">{{ calc.sumLabel }}</span>
@@ -155,16 +187,16 @@
                 </div>
                 <sc-for list="{{ weighted.rows }}" as="wr" hint-placeholder-count="3">
                   <div style="background:#faf9f6;border:1px solid #ece8e0;border-radius:12px;border-left:3px solid {{ wr.color }};padding:10px 16px;">
-                    <div style="display:flex;align-items:center;gap:16px;">
+                    <div data-r="wrow" style="display:flex;align-items:center;gap:16px;">
                       <span style="font-size:13px;font-weight:700;color:#211f1c;width:34px;flex:none;">{{ wr.name }}</span>
                       <div style="display:flex;align-items:baseline;gap:3px;width:74px;flex:none;">
                         <span style="font-family:'IBM Plex Mono',monospace;font-size:25px;font-weight:600;color:{{ wr.color }};line-height:1;">{{ wr.pct }}</span>
                         <span style="font-size:13px;color:#b3ada3;">%</span>
                       </div>
-                      <div style="flex:1;min-width:40px;height:6px;border-radius:3px;background:#ece8e0;overflow:hidden;">
+                      <div data-r="wrow-bar" style="flex:1;min-width:40px;height:6px;border-radius:3px;background:#ece8e0;overflow:hidden;">
                         <div style="height:100%;border-radius:3px;background:{{ wr.color }};width: {{ wr.w }}%;"></div>
                       </div>
-                      <div style="text-align:right;width:96px;flex:none;">
+                      <div data-r="wrow-ev" style="text-align:right;width:96px;flex:none;">
                         <div style="font-size:10px;color:#b3ada3;margin-bottom:2px;">理论回报率</div>
                         <div style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:{{ wr.evColor }};">{{ wr.ev }}</div>
                       </div>
@@ -290,7 +322,7 @@
 
       <!-- EXPLORE MODULE (single card) -->
       <section style="background:#ffffff;border:1px solid #e7e3da;border-radius:16px;padding:18px 24px 20px;margin-bottom:16px;box-shadow:0 1px 2px rgba(40,34,20,.03);">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div data-r="exhead" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
           <div style="display:flex;align-items:baseline;gap:10px;">
             <div style="font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #34312D; text-transform: uppercase">输球赔率探索</div>
             <span style="font-size:11px;color:#b3ada3;">赔率区间 · 结果分布 · 比赛明细，实时联动</span>
@@ -309,16 +341,16 @@
         <div style="display:flex;flex-direction:column;gap:16px;">
           <sc-for list="{{ sliders }}" as="s" hint-placeholder-count="3">
             <div>
-              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;">
+              <div data-r="slabel" style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:7px;">
                 <div style="display:flex;align-items:baseline;gap:8px;">
                   <span style="width:9px;height:9px;border-radius:50%;background:{{ s.color }};display:inline-block;"></span>
                   <span style="font-size:15px;font-weight:700;">{{ s.name }}</span>
                   
                 </div>
                 <div style="display:flex;align-items:center;gap:8px;white-space:nowrap;">
-                  <input type="number" step="0.01" min="{{ s.boundLo }}" max="{{ s.boundHi }}" key="{{ s.minKey }}" defaultValue="{{ s.minLabel }}" onBlur="{{ s.commitMin }}" onKeyDown="{{ s.inputKeyDown }}" style="width:74px;background:#faf9f6;border:1px solid #e3ded3;border-radius:8px;color:{{ s.color }};font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:7px 4px;" style-focus="border-color:{{ s.color }};outline:none;">
+                  <input type="number" step="0.01" min="{{ s.boundLo }}" max="{{ s.boundHi }}" key="{{ s.minKey }}" defaultValue="{{ s.minLabel }}" onBlur="{{ s.commitMin }}" onKeyDown="{{ s.inputKeyDown }}" data-r="snum" style="width:74px;background:#faf9f6;border:1px solid #e3ded3;border-radius:8px;color:{{ s.color }};font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:7px 4px;" style-focus="border-color:{{ s.color }};outline:none;">
                   <span style="color:#b3ada3;">—</span>
-                  <input type="number" step="0.01" min="{{ s.boundLo }}" max="{{ s.boundHi }}" key="{{ s.maxKey }}" defaultValue="{{ s.maxLabel }}" onBlur="{{ s.commitMax }}" onKeyDown="{{ s.inputKeyDown }}" style="width:74px;background:#faf9f6;border:1px solid #e3ded3;border-radius:8px;color:{{ s.color }};font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:7px 4px;" style-focus="border-color:{{ s.color }};outline:none;">
+                  <input type="number" step="0.01" min="{{ s.boundLo }}" max="{{ s.boundHi }}" key="{{ s.maxKey }}" defaultValue="{{ s.maxLabel }}" onBlur="{{ s.commitMax }}" onKeyDown="{{ s.inputKeyDown }}" data-r="snum" style="width:74px;background:#faf9f6;border:1px solid #e3ded3;border-radius:8px;color:{{ s.color }};font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;text-align:center;padding:7px 4px;" style-focus="border-color:{{ s.color }};outline:none;">
                   <div style="margin-left:6px;padding-left:14px;border-left:1px solid #e3ded3;text-align:right;min-width:64px;">
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;color:{{ s.color }};line-height:1;">{{ s.coverPct }}%</div>
                     <div style="font-size:11px;color:#b3ada3;margin-top:3px;">占 {{ s.coverN }} 场</div>
@@ -353,12 +385,12 @@
           <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;color:#79736a;">匹配 <span style="color:#211f1c;font-weight:600;font-size:16px;">{{ matched }}</span> 场</div>
         </div>
 
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;">
+        <div data-r="grid3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px;">
           <sc-for list="{{ stats }}" as="st" hint-placeholder-count="3">
             <div style="background:#faf9f6;border:1px solid #ece8e0;border-radius:12px;padding:15px 20px;border-top:3px solid {{ st.color }};">
               <div style="font-size:13px;color:#79736a;font-weight:600;margin-bottom:6px;">{{ st.name }}</div>
               <div style="display:flex;align-items:baseline;gap:8px;">
-                <span style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:{{ st.color }};line-height:1;">{{ st.pct }}</span>
+                <span data-r="statnum" style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:{{ st.color }};line-height:1;">{{ st.pct }}</span>
                 <span style="font-size:16px;color:#b3ada3;">%</span>
               </div>
               <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;margin-top:6px;">{{ st.count }} 场</div>
@@ -415,19 +447,32 @@
           </table>
         </div>
         <sc-if value="{{ pagination.hasPages }}">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 24px;border-top:1px solid #ece8e0;flex-wrap:wrap;">
-            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;">{{ pagination.pageLabel }}</div>
-            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-              <button onClick="{{ pagination.prev }}" style="{{ pagination.prevStyle }}">‹ 上一页</button>
-              <sc-for list="{{ pagination.pageItems }}" as="pi" hint-placeholder-count="5">
-                <sc-if value="{{ pi.gap }}">
-                  <span style="min-width:20px;text-align:center;color:#c2bcb0;font-family:'IBM Plex Mono',monospace;">…</span>
-                </sc-if>
-                <sc-if value="{{ pi.notGap }}">
-                  <button onClick="{{ pi.onClick }}" style="{{ pi.style }}">{{ pi.label }}</button>
-                </sc-if>
-              </sc-for>
-              <button onClick="{{ pagination.next }}" style="{{ pagination.nextStyle }}">下一页 ›</button>
+          <div data-r="pager" style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 24px;border-top:1px solid #ece8e0;flex-wrap:wrap;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;white-space:nowrap;">{{ pagination.pageLabel }}</div>
+            <div data-r="pagenums" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <button onClick="{{ pagination.prev }}" style="{{ pagination.prevStyle }}">‹<span data-r="navtext"> 上一页</span></button>
+              <div data-r="pagelist" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <sc-for list="{{ pagination.pageItems }}" as="pi" hint-placeholder-count="5">
+                  <sc-if value="{{ pi.gap }}">
+                    <span style="min-width:20px;text-align:center;color:#c2bcb0;font-family:'IBM Plex Mono',monospace;">…</span>
+                  </sc-if>
+                  <sc-if value="{{ pi.notGap }}">
+                    <button onClick="{{ pi.onClick }}" style="{{ pi.style }}">{{ pi.label }}</button>
+                  </sc-if>
+                </sc-for>
+              </div>
+              <div data-r="pagelist-m" style="display:none;align-items:center;gap:5px;">
+                <sc-for list="{{ pagination.pageItemsMobile }}" as="pi" hint-placeholder-count="4">
+                  <sc-if value="{{ pi.gap }}">
+                    <span style="min-width:14px;text-align:center;color:#c2bcb0;font-family:'IBM Plex Mono',monospace;">…</span>
+                  </sc-if>
+                  <sc-if value="{{ pi.notGap }}">
+                    <button onClick="{{ pi.onClick }}" style="{{ pi.style }}">{{ pi.label }}</button>
+                  </sc-if>
+                </sc-for>
+              </div>
+              <button onClick="{{ pagination.next }}" style="{{ pagination.nextStyle }}"><span data-r="navtext">下一页 </span>›</button>
+            </div>
             </div>
           </div>
         </sc-if>
@@ -441,7 +486,7 @@
     <div style="display: flex; justify-content: center">
       <div onMouseEnter="{{ openCoffee }}" onMouseLeave="{{ closeCoffee }}" style="position:relative;display:inline-flex;">
         <div style="position:absolute;bottom:calc(100% + 14px);left:50%;transform: translateX(-50%) translateY({{ coffeeShift }}) scale({{ coffeeScale }});opacity: {{ coffeeOpacity }};pointer-events: {{ coffeePointer }};transition:transform .34s cubic-bezier(0.34,1.56,0.64,1), opacity .22s ease;transform-origin:bottom center;">
-          <div style="background:#ffffff;border:1px solid #e7e3da;border-radius:16px;box-shadow:0 16px 40px rgba(40,34,20,.18);padding:16px;display:flex;gap:16px;white-space:nowrap;">
+          <div data-r="qr" style="background:#ffffff;border:1px solid #e7e3da;border-radius:16px;box-shadow:0 16px 40px rgba(40,34,20,.18);padding:16px;display:flex;gap:16px;white-space:nowrap;">
             <div style="display:flex;flex-direction:column;align-items:center;gap:9px;">
               <img src="assets/wechat_pay.jpg" alt="微信支付" style="width:132px;height:132px;object-fit:cover;border-radius:10px;border:1px solid #ece8e0;display:block;">
               <span style="font-size:12px;font-weight:600;color:#1b9c4a;">微信扫一扫</span>
@@ -455,7 +500,7 @@
         </div>
 
         <div style="display:inline-flex;align-items:baseline;gap:6px;cursor:pointer;padding:4px 2px;">
-          <span style="font-family: 'Pinyon Script',cursive; font-size: 32px; font-weight: 400; line-height: 1; letter-spacing: .01em; color: #6b6359; padding-bottom: 4px; transition: color .2s ease, border-color .2s ease; text-decoration-line: none" style-hover="color:#1b806a;border-color:#1b806a">Dodged a bad bet? Buy me a coffee ☕</span>
+          <span data-r="coffeelink" style="font-family: 'Pinyon Script',cursive; font-size: 25px; font-weight: 400; line-height: 1; letter-spacing: .01em; color: #6b6359; padding-bottom: 4px; transition: color .2s ease, border-color .2s ease; text-decoration-line: none" style-hover="color:#1b806a;border-color:#1b806a">Dodged a bad bet? Buy me a coffee ☕</span>
         </div>
       </div>
     </div>
@@ -477,7 +522,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.22-6.82-5.97 6.82H1.66l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.01 4.13H5.04l12.04 15.64z"></path></svg>
           liu_dichen
         </a>
-        <a href="/cdn-cgi/l/email-protection#93fff7faf0f0f0f0f0f0d3f4fef2faffbdf0fcfe" style="display:flex;align-items:center;gap:6px;color:#5d5750;text-decoration:none;font-weight:600;" style-hover="color:#1b806a">
+        <a href="/cdn-cgi/l/email-protection#ea868e83898989898989aa8d878b8386c4898587" style="display:flex;align-items:center;gap:6px;color:#5d5750;text-decoration:none;font-weight:600;" style-hover="color:#1b806a">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3.5 6.5l8.5 6 8.5-6"></path></svg>
           邮件
         </a>
@@ -593,10 +638,129 @@ class Component extends DCLogic {
     window.addEventListener('pointermove', this._onMove);
     window.addEventListener('pointerup', this._onUp);
     this.waitForSql();
+    this._osInit();
+  }
+  componentDidUpdate() {
+    this._osScan();
+    this._osUpdateAll();
   }
   componentWillUnmount() {
     window.removeEventListener('pointermove', this._onMove);
     window.removeEventListener('pointerup', this._onUp);
+    if (this._osWinUpd) {
+      window.removeEventListener('scroll', this._osOnWinScroll);
+      window.removeEventListener('resize', this._osWinUpd);
+    }
+  }
+
+  /* ---- custom floating overlay scrollbars (no reserved gutter, auto-hide) ---- */
+  _osInit() {
+    if (this._osDone) return;
+    this._osDone = true;
+    this._osRecs = [];
+    if (!document.getElementById('os-style')) {
+      const st = document.createElement('style');
+      st.id = 'os-style';
+      st.textContent =
+        'html{scrollbar-width:none;-ms-overflow-style:none;}' +
+        'html::-webkit-scrollbar{width:0;height:0;display:none;}' +
+        '.os-host{scrollbar-width:none;-ms-overflow-style:none;}' +
+        '.os-host::-webkit-scrollbar{width:0;height:0;display:none;}';
+      document.head.appendChild(st);
+    }
+    // window vertical thumb
+    const v = document.createElement('div');
+    v.style.cssText = 'position:fixed;top:0;right:3px;width:7px;border-radius:7px;background:rgba(72,66,58,.42);opacity:0;transition:opacity .35s ease;pointer-events:none;z-index:2147483600;';
+    document.body.appendChild(v);
+    this._osWin = v;
+    let wt;
+    this._osWinUpd = () => {
+      const ch = window.innerHeight, sh = document.documentElement.scrollHeight;
+      if (sh > ch + 2) {
+        const th = Math.max(34, ch * ch / sh);
+        const top = (window.scrollY / (sh - ch)) * (ch - th);
+        v.style.height = th + 'px';
+        v.style.transform = 'translateY(' + top + 'px)';
+        v.style.display = 'block';
+      } else { v.style.display = 'none'; }
+    };
+    this._osOnWinScroll = () => {
+      this._osWinUpd();
+      v.style.opacity = '1';
+      clearTimeout(wt);
+      wt = setTimeout(() => { v.style.opacity = '0'; }, 1000);
+    };
+    window.addEventListener('scroll', this._osOnWinScroll, { passive: true });
+    window.addEventListener('resize', this._osWinUpd, { passive: true });
+    this._osWinUpd();
+    this._osScan();
+  }
+
+  _osScan() {
+    const page = document.querySelector('[data-r="page"]');
+    if (!page) return;
+    page.querySelectorAll('[style*="overflow"]').forEach((el) => {
+      if (el.__os) return;
+      const cs = getComputedStyle(el);
+      const scrolls = /(auto|scroll)/.test(cs.overflowX) || /(auto|scroll)/.test(cs.overflowY);
+      if (!scrolls) return;
+      this._osWire(el);
+    });
+  }
+
+  _osWire(el) {
+    el.__os = true;
+    el.classList.add('os-host');
+    const wrap = el.parentElement;
+    if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
+    const mk = (vert) => {
+      const t = document.createElement('div');
+      t.style.cssText = 'position:absolute;border-radius:7px;background:rgba(72,66,58,.4);opacity:0;transition:opacity .35s ease;pointer-events:none;z-index:60;'
+        + (vert ? 'width:7px;' : 'height:7px;');
+      wrap.appendChild(t);
+      return t;
+    };
+    const rec = { el, wrap, v: mk(true), h: mk(false), t: null };
+    el.addEventListener('scroll', () => {
+      this._osUpdate(rec);
+      rec.v.style.opacity = rec.v.style.display === 'none' ? '0' : '1';
+      rec.h.style.opacity = rec.h.style.display === 'none' ? '0' : '1';
+      clearTimeout(rec.t);
+      rec.t = setTimeout(() => { rec.v.style.opacity = '0'; rec.h.style.opacity = '0'; }, 1000);
+    }, { passive: true });
+    this._osRecs.push(rec);
+    this._osUpdate(rec);
+  }
+
+  _osUpdate(rec) {
+    const el = rec.el;
+    // anchor thumbs to the SCROLLER's own box (not the wrap, which may also contain a pager / caption)
+    const ox = el.offsetLeft, oy = el.offsetTop;
+    const ch = el.clientHeight, sh = el.scrollHeight;
+    const cw = el.clientWidth, sw = el.scrollWidth;
+    if (sh > ch + 2) {
+      const th = Math.max(30, ch * ch / sh);
+      const top = oy + (el.scrollTop / (sh - ch)) * (ch - th);
+      rec.v.style.height = th + 'px';
+      rec.v.style.left = (ox + cw - 9) + 'px';
+      rec.v.style.top = top + 'px';
+      rec.v.style.display = 'block';
+    } else { rec.v.style.display = 'none'; }
+    if (sw > cw + 2) {
+      const tw = Math.max(30, cw * cw / sw);
+      const left = ox + (el.scrollLeft / (sw - cw)) * (cw - tw);
+      rec.h.style.width = tw + 'px';
+      rec.h.style.left = left + 'px';
+      rec.h.style.top = (oy + ch - 9) + 'px';
+      rec.h.style.display = 'block';
+    } else { rec.h.style.display = 'none'; }
+  }
+
+  _osUpdateAll() {
+    if (this._osWinUpd) this._osWinUpd();
+    if (this._osRecs) this._osRecs.forEach((r) => {
+      if (r.el.isConnected) this._osUpdate(r);
+    });
   }
 
   waitForSql(tries = 0) {
@@ -1044,7 +1208,7 @@ class Component extends DCLogic {
       return out;
     };
     const pageBtnBase = 'min-width:34px;height:34px;padding:0 10px;border-radius:8px;font-family:\'IBM Plex Mono\',monospace;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;';
-    const pageItems = buildPages(curPage, pageCount).map((v, i) => {
+    const mkItems = (arr) => arr.map((v, i) => {
       if (v === '…') return { gap: true, notGap: false, key: 'gap' + i, label: '…' };
       return {
         gap: false, notGap: true, key: 'p' + v, label: '' + v, active: v === curPage,
@@ -1054,10 +1218,25 @@ class Component extends DCLogic {
           : pageBtnBase + 'background:#ffffff;border:1px solid #e3ded3;color:#5d5750;',
       };
     });
+    // compact list for phones: first, second, current, last (deduped, with gaps)
+    const buildPagesMobile = (cur, count) => {
+      if (count <= 4) { const o = []; for (let i = 1; i <= count; i++) o.push(i); return o; }
+      const keep = new Set([1, 2, cur, count]);
+      const nums = [...keep].filter((n) => n >= 1 && n <= count).sort((a, b) => a - b);
+      const o = [];
+      for (let i = 0; i < nums.length; i++) {
+        if (i > 0 && nums[i] - nums[i - 1] > 1) o.push('…');
+        o.push(nums[i]);
+      }
+      return o;
+    };
+    const pageItems = mkItems(buildPages(curPage, pageCount));
+    const pageItemsMobile = mkItems(buildPagesMobile(curPage, pageCount));
     const navBase = 'height:34px;padding:0 14px;border-radius:8px;font-family:\'Manrope\',sans-serif;font-size:13px;font-weight:600;display:inline-flex;align-items:center;';
     const pagination = {
       hasPages: pageCount > 1,
       pageItems,
+      pageItemsMobile,
       pageLabel: `第 ${curPage} / ${pageCount} 页`,
       prev: () => this.goPage(this.page - 1),
       next: () => this.goPage(this.page + 1),

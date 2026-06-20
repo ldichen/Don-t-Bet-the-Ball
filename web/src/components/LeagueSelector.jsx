@@ -37,14 +37,14 @@ export default function LeagueSelector({ catGroups, allLeagues, leagueCount, sel
       background: '#ffffff', border: '1px solid #e7e3da', borderRadius: 16,
       padding: '14px 22px', marginBottom: 16, boxShadow: '0 1px 2px rgba(40,34,20,.03)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div data-r="lghead" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.1em', color: '#34312d', textTransform: 'uppercase' }}>联赛 / 赛事</div>
           <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: '#b3ada3' }}>
             已选 {selectedCount} / {allLeagues.length}
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div data-r="lgbtns" style={{ display: 'flex', gap: 8 }}>
           <button onClick={selectAll} style={btnBase}>全选</button>
           <button onClick={clearAll} style={btnBase}>清空</button>
           <button onClick={() => setOpen(!open)} style={{ ...btnBase, background: '#1b806a', borderColor: '#1b806a', color: '#fff' }}>

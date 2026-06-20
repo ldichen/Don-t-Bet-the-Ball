@@ -24,7 +24,7 @@ export default function CoffeeHover() {
           transition: 'transform .34s cubic-bezier(0.34,1.56,0.64,1), opacity .22s ease',
           transformOrigin: 'bottom center',
         }}>
-          <div style={{
+          <div data-r="qr" style={{
             background: '#fff', border: '1px solid #e7e3da', borderRadius: 16,
             boxShadow: '0 16px 40px rgba(40,34,20,.18)',
             padding: 16, display: 'flex', gap: 16, whiteSpace: 'nowrap',
@@ -50,8 +50,8 @@ export default function CoffeeHover() {
 
         {/* Trigger text */}
         <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: 6, cursor: 'pointer', padding: '4px 2px' }}>
-          <span style={{
-            fontFamily: "'Pinyon Script',cursive", fontSize: 32, fontWeight: 400,
+          <span data-r="coffeelink" style={{
+            fontFamily: "'Pinyon Script',cursive", fontSize: 25, fontWeight: 400,
             lineHeight: 1, letterSpacing: '.01em', color: '#6b6359',
             paddingBottom: 4, transition: 'color .2s ease',
             ...(open ? { color: '#1b806a' } : {}),

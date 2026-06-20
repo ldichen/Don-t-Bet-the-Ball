@@ -15,6 +15,16 @@ export default function Pagination({ page, pageCount, goPage }) {
     return out;
   }
 
+  function buildPagesMobile(cur, count) {
+    if (count <= 4) { const out = []; for (let i = 1; i <= count; i++) out.push(i); return out; }
+    const out = [1];
+    if (cur > 2) out.push('…');
+    if (cur > 1 && cur < count) out.push(cur);
+    if (cur < count - 1) out.push('…');
+    out.push(count);
+    return out;
+  }
+
   const pageBtnBase = {
     minWidth: 34, height: 34, padding: '0 10px', borderRadius: 8,
     fontFamily: "'IBM Plex Mono',monospace", fontSize: 13, fontWeight: 600,
@@ -28,55 +38,70 @@ export default function Pagination({ page, pageCount, goPage }) {
   };
 
   const pageItems = buildPages(curPage, pageCount);
+  const mobileItems = buildPagesMobile(curPage, pageCount);
+
+  const prevEnabled = curPage > 1;
+  const nextEnabled = curPage < pageCount;
+
+  const prevStyle = {
+    ...navBase,
+    ...(prevEnabled
+      ? { background: '#ffffff', border: '1px solid #e3ded3', color: '#5d5750', cursor: 'pointer' }
+      : { background: '#f4f2ee', border: '1px solid #ece8e0', color: '#c2bcb0', cursor: 'not-allowed' }),
+  };
+
+  const nextStyle = {
+    ...navBase,
+    ...(nextEnabled
+      ? { background: '#ffffff', border: '1px solid #e3ded3', color: '#5d5750', cursor: 'pointer' }
+      : { background: '#f4f2ee', border: '1px solid #ece8e0', color: '#c2bcb0', cursor: 'not-allowed' }),
+  };
+
+  const renderPageBtn = (v, i) => {
+    if (v === '…') {
+      return <span key={`gap${i}`} style={{ minWidth: 20, textAlign: 'center', color: '#c2bcb0', fontFamily: "'IBM Plex Mono',monospace" }}>…</span>;
+    }
+    return (
+      <button
+        key={v}
+        onClick={() => goPage(v - 1)}
+        style={{
+          ...pageBtnBase,
+          ...(v === curPage
+            ? { background: '#1b806a', border: '1px solid #1b806a', color: '#fff' }
+            : { background: '#ffffff', border: '1px solid #e3ded3', color: '#5d5750' }),
+        }}
+      >{v}</button>
+    );
+  };
 
   return (
-    <div style={{
+    <div data-r="pager" style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       gap: 14, padding: '14px 24px', borderTop: '1px solid #ece8e0', flexWrap: 'wrap',
     }}>
       <div style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 12, color: '#b3ada3' }}>
         第 {curPage} / {pageCount} 页
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-        <button
-          onClick={() => goPage(page - 1)}
-          disabled={curPage <= 1}
-          style={{
-            ...navBase,
-            ...(curPage > 1
-              ? { background: '#ffffff', border: '1px solid #e3ded3', color: '#5d5750', cursor: 'pointer' }
-              : { background: '#f4f2ee', border: '1px solid #ece8e0', color: '#c2bcb0', cursor: 'not-allowed' }),
-          }}
-        >‹ 上一页</button>
 
-        {pageItems.map((v, i) => {
-          if (v === '…') {
-            return <span key={`gap${i}`} style={{ minWidth: 20, textAlign: 'center', color: '#c2bcb0', fontFamily: "'IBM Plex Mono',monospace" }}>…</span>;
-          }
-          return (
-            <button
-              key={v}
-              onClick={() => goPage(v - 1)}
-              style={{
-                ...pageBtnBase,
-                ...(v === curPage
-                  ? { background: '#1b806a', border: '1px solid #1b806a', color: '#fff' }
-                  : { background: '#ffffff', border: '1px solid #e3ded3', color: '#5d5750' }),
-              }}
-            >{v}</button>
-          );
-        })}
+      {/* Desktop page list */}
+      <div data-r="pagelist" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+        <button onClick={() => goPage(page - 1)} disabled={!prevEnabled} style={prevStyle}>
+          <span>‹</span><span data-r="navtext"> 上一页</span>
+        </button>
+        {pageItems.map(renderPageBtn)}
+        <button onClick={() => goPage(page + 1)} disabled={!nextEnabled} style={nextStyle}>
+          <span data-r="navtext">下一页 </span><span>›</span>
+        </button>
+      </div>
 
-        <button
-          onClick={() => goPage(page + 1)}
-          disabled={curPage >= pageCount}
-          style={{
-            ...navBase,
-            ...(curPage < pageCount
-              ? { background: '#ffffff', border: '1px solid #e3ded3', color: '#5d5750', cursor: 'pointer' }
-              : { background: '#f4f2ee', border: '1px solid #ece8e0', color: '#c2bcb0', cursor: 'not-allowed' }),
-          }}
-        >下一页 ›</button>
+      {/* Mobile page list — hidden by default, shown via responsive CSS */}
+      <div data-r="pagelist-m" style={{ display: 'none', alignItems: 'center', gap: 6, flexWrap: 'wrap', width: '100%', justifyContent: 'center' }}>
+        <button onClick={() => goPage(page - 1)} disabled={!prevEnabled} style={prevStyle}>‹</button>
+        <div data-r="pagenums" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {mobileItems.map(renderPageBtn)}
+        </div>
+        <button onClick={() => goPage(page + 1)} disabled={!nextEnabled} style={nextStyle}>›</button>
       </div>
     </div>
   );
