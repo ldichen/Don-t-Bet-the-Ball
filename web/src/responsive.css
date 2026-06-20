@@ -7,8 +7,9 @@
   [data-r="lghead"], [data-r="exhead"] { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
   [data-r="exhead"] > div:first-child { flex-wrap: wrap !important; }
   [data-r="lghead"] [data-r="lgbtns"], [data-r="exhead"] [data-r="exbtns"] { flex-wrap: wrap !important; }
-  [data-r="grid3"] { gap: 8px !important; }
-  [data-r="grid3"] > div { padding-left: 13px !important; padding-right: 13px !important; }
+  [data-r="grid3"] { gap: 7px !important; }
+  [data-r="grid3"] > div { padding-left: 11px !important; padding-right: 11px !important; }
+  [data-r="calcrow"] { flex-direction: column !important; align-items: flex-start !important; gap: 1px !important; }
   [data-r="snum"] { width: 60px !important; }
   [data-r="slabel"] { flex-wrap: wrap !important; row-gap: 8px !important; }
   [data-r="statnum"] { font-size: 22px !important; }
@@ -18,12 +19,12 @@
   [data-r="wrow-ev"] > div:first-child { margin-bottom: 0 !important; }
   [data-r="qr"] { gap: 10px !important; padding: 12px !important; }
   [data-r="qr"] img { width: 104px !important; height: 104px !important; }
-  [data-r="pager"] { padding: 11px 13px !important; gap: 9px !important; }
+  [data-r="pager"] { padding: 10px 12px !important; gap: 8px !important; }
   [data-r="pagelist"] { display: none !important; }
-  [data-r="pagelist-m"] { display: flex !important; }
-  [data-r="pagenums"] { width: 100% !important; justify-content: center !important; gap: 7px !important; flex-wrap: nowrap !important; }
-  [data-r="pagenums"] > button { height: 30px !important; padding: 0 9px !important; font-size: 12px !important; }
+  [data-r="pagelist-m"] { display: flex !important; gap: 5px !important; }
+  [data-r="pagenums"] { width: 100% !important; justify-content: center !important; gap: 6px !important; flex-wrap: nowrap !important; }
+  [data-r="pagenums"] > button { height: 28px !important; min-width: 28px !important; padding: 0 8px !important; font-size: 12px !important; }
   [data-r="navtext"] { display: none !important; }
-  [data-r="pagelist-m"] button { min-width: 30px !important; height: 30px !important; padding: 0 7px !important; font-size: 12px !important; }
+  [data-r="pagelist-m"] button { min-width: 28px !important; height: 28px !important; padding: 0 6px !important; font-size: 12px !important; }
   [data-r="coffeelink"] { font-size: 20px !important; }
 }

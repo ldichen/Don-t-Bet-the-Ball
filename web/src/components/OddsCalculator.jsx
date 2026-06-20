@@ -68,11 +68,11 @@ export default function OddsCalculator({ db, selected, allLeagues, VALID }) {
                 textAlign: 'center', padding: '9px 4px', marginBottom: 11, outline: 'none',
               }}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <div data-r="calcrow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 8 }}>
               <span style={{ fontSize: 11.5, color: '#b3ada3' }}>盈亏平衡</span>
               <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 15, fontWeight: 600, color: '#5d5750' }}>{c.be}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <div data-r="calcrow" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 11.5, color: '#b3ada3' }}>去水市场</span>
               <span style={{ fontFamily: "'IBM Plex Mono',monospace", fontSize: 15, fontWeight: 600, color: c.color }}>{c.mk}</span>
             </div>

@@ -84,24 +84,21 @@ export default function Pagination({ page, pageCount, goPage }) {
         第 {curPage} / {pageCount} 页
       </div>
 
-      {/* Desktop page list */}
-      <div data-r="pagelist" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+      <div data-r="pagenums" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'nowrap' }}>
         <button onClick={() => goPage(page - 1)} disabled={!prevEnabled} style={prevStyle}>
           <span>‹</span><span data-r="navtext"> 上一页</span>
         </button>
-        {pageItems.map(renderPageBtn)}
+        {/* Desktop page list */}
+        <div data-r="pagelist" style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          {pageItems.map(renderPageBtn)}
+        </div>
+        {/* Mobile page list — hidden by default, shown via responsive CSS */}
+        <div data-r="pagelist-m" style={{ display: 'none', alignItems: 'center', gap: 5 }}>
+          {mobileItems.map(renderPageBtn)}
+        </div>
         <button onClick={() => goPage(page + 1)} disabled={!nextEnabled} style={nextStyle}>
           <span data-r="navtext">下一页 </span><span>›</span>
         </button>
-      </div>
-
-      {/* Mobile page list — hidden by default, shown via responsive CSS */}
-      <div data-r="pagelist-m" style={{ display: 'none', alignItems: 'center', gap: 6, flexWrap: 'wrap', width: '100%', justifyContent: 'center' }}>
-        <button onClick={() => goPage(page - 1)} disabled={!prevEnabled} style={prevStyle}>‹</button>
-        <div data-r="pagenums" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {mobileItems.map(renderPageBtn)}
-        </div>
-        <button onClick={() => goPage(page + 1)} disabled={!nextEnabled} style={nextStyle}>›</button>
       </div>
     </div>
   );

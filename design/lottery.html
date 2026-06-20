@@ -28,8 +28,10 @@
     [data-r="lghead"], [data-r="exhead"] { flex-direction: column !important; align-items: stretch !important; gap: 10px !important; }
     [data-r="exhead"] > div:first-child { flex-wrap: wrap !important; }
     [data-r="lghead"] [data-r="lgbtns"], [data-r="exhead"] [data-r="exbtns"] { flex-wrap: wrap !important; }
-    [data-r="grid3"] { gap: 8px !important; }
-    [data-r="grid3"] > div { padding-left: 13px !important; padding-right: 13px !important; }
+    [data-r="grid3"] { gap: 7px !important; }
+    [data-r="grid3"] > div { padding-left: 11px !important; padding-right: 11px !important; }
+    /* calculator: stack each label above its number so they never wrap mid-word in a ~100px cell */
+    [data-r="calcrow"] { flex-direction: column !important; align-items: flex-start !important; gap: 1px !important; }
     [data-r="snum"] { width: 60px !important; }
     [data-r="slabel"] { flex-wrap: wrap !important; row-gap: 8px !important; }
     /* big distribution numbers shrink so 3 columns fit */
@@ -41,14 +43,14 @@
     [data-r="wrow-ev"] > div:first-child { margin-bottom: 0 !important; }
     [data-r="qr"] { gap: 10px !important; padding: 12px !important; }
     [data-r="qr"] img { width: 104px !important; height: 104px !important; }
-    /* phone pagination: condensed numbered pages (first / second / current / last) + smaller prev-next */
-    [data-r="pager"] { padding: 11px 13px !important; gap: 9px !important; }
+    /* phone pagination: prev / condensed pages / next on one tight row */
+    [data-r="pager"] { padding: 10px 12px !important; gap: 8px !important; }
     [data-r="pagelist"] { display: none !important; }
-    [data-r="pagelist-m"] { display: flex !important; }
-    [data-r="pagenums"] { width: 100% !important; justify-content: center !important; gap: 7px !important; flex-wrap: nowrap !important; }
-    [data-r="pagenums"] > button { height: 30px !important; padding: 0 9px !important; font-size: 12px !important; }
+    [data-r="pagelist-m"] { display: flex !important; gap: 5px !important; }
+    [data-r="pagenums"] { width: 100% !important; justify-content: center !important; gap: 6px !important; flex-wrap: nowrap !important; }
+    [data-r="pagenums"] > button { height: 28px !important; min-width: 28px !important; padding: 0 8px !important; font-size: 12px !important; }
     [data-r="navtext"] { display: none !important; }
-    [data-r="pagelist-m"] button { min-width: 30px !important; height: 30px !important; padding: 0 7px !important; font-size: 12px !important; }
+    [data-r="pagelist-m"] button { min-width: 28px !important; height: 28px !important; padding: 0 6px !important; font-size: 12px !important; }
     [data-r="coffeelink"] { font-size: 20px !important; }
   }
 </style>
@@ -137,11 +139,11 @@
                 <span style="font-size:14px;font-weight:700;color:#211f1c;">{{ c.name }}</span>
               </div>
               <input type="number" step="0.01" placeholder="赔率" value="{{ c.inputVal }}" onInput="{{ c.onInput }}" style="width:100%;background:#ffffff;border:1px solid #e3ded3;border-radius:9px;color:{{ c.color }};font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;text-align:center;padding:9px 4px;margin-bottom:11px;" style-focus="border-color:{{ c.color }};outline:none;">
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+              <div data-r="calcrow" style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
                 <span style="font-size:11.5px;color:#b3ada3;">盈亏平衡</span>
                 <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#5d5750;">{{ c.be }}</span>
               </div>
-              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <div data-r="calcrow" style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
                 <span style="font-size:11.5px;color:#b3ada3;">去水市场</span>
                 <span style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:{{ c.color }};">{{ c.mk }}</span>
               </div>
@@ -449,7 +451,7 @@
         <sc-if value="{{ pagination.hasPages }}">
           <div data-r="pager" style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 24px;border-top:1px solid #ece8e0;flex-wrap:wrap;">
             <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#b3ada3;white-space:nowrap;">{{ pagination.pageLabel }}</div>
-            <div data-r="pagenums" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <div data-r="pagenums" style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;">
               <button onClick="{{ pagination.prev }}" style="{{ pagination.prevStyle }}">‹<span data-r="navtext"> 上一页</span></button>
               <div data-r="pagelist" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                 <sc-for list="{{ pagination.pageItems }}" as="pi" hint-placeholder-count="5">
@@ -522,7 +524,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.22-6.82-5.97 6.82H1.66l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.01 4.13H5.04l12.04 15.64z"></path></svg>
           liu_dichen
         </a>
-        <a href="/cdn-cgi/l/email-protection#ea868e83898989898989aa8d878b8386c4898587" style="display:flex;align-items:center;gap:6px;color:#5d5750;text-decoration:none;font-weight:600;" style-hover="color:#1b806a">
+        <a href="/cdn-cgi/l/email-protection#b4d8d0ddd7d7d7d7d7d7f4d3d9d5ddd89ad7dbd9" style="display:flex;align-items:center;gap:6px;color:#5d5750;text-decoration:none;font-weight:600;" style-hover="color:#1b806a">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3.5 6.5l8.5 6 8.5-6"></path></svg>
           邮件
         </a>
